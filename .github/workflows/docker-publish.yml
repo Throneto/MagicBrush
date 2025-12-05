@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_USERNAME: histonemax
-  IMAGE_NAME: redink
+  DOCKER_USERNAME: thronetofreedom
+  IMAGE_NAME: magicbrush
 
 jobs:
   build-and-push:
