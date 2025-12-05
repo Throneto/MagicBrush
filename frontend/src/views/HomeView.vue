@@ -37,51 +37,83 @@
       </div>
     </div>
 
-    <!-- 错误提示 -->
-    <div v-if="error" class="error-toast">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-      {{ error }}
-    </div>
+    <!-- Error toast with close button -->
+    <Transition name="toast">
+      <div v-if="error" class="error-toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span class="error-message">{{ error }}</span>
+        <button class="error-close" @click="clearError" title="关闭">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="error-progress"></div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneratorStore } from '../stores/generator'
 import { generateOutline } from '../api'
 
-// 引入组件
+// Import components
 import ShowcaseBackground from '../components/home/ShowcaseBackground.vue'
 import ComposerInput from '../components/home/ComposerInput.vue'
 
 const router = useRouter()
 const store = useGeneratorStore()
 
-// 状态
+// State
 const topic = ref('')
 const loading = ref(false)
 const error = ref('')
 const composerRef = ref<InstanceType<typeof ComposerInput> | null>(null)
 
-// 上传的图片文件
+// Uploaded image files
 const uploadedImageFiles = ref<File[]>([])
 
+// Error auto-dismiss timer
+let errorTimer: ReturnType<typeof setTimeout> | null = null
+
 /**
- * 处理图片变化
+ * Clear error with optional delay
+ */
+function clearError() {
+  error.value = ''
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = null
+  }
+}
+
+/**
+ * Set error with auto-dismiss
+ */
+function setError(message: string) {
+  error.value = message
+  // Auto-dismiss after 5 seconds
+  if (errorTimer) clearTimeout(errorTimer)
+  errorTimer = setTimeout(() => {
+    error.value = ''
+  }, 5000)
+}
+
+/**
+ * Handle images change
  */
 function handleImagesChange(images: File[]) {
   uploadedImageFiles.value = images
 }
 
 /**
- * 生成大纲
+ * Generate outline
  */
 async function handleGenerate() {
   if (!topic.value.trim()) return
 
   loading.value = true
-  error.value = ''
+  clearError()
 
   try {
     const imageFiles = uploadedImageFiles.value
@@ -96,27 +128,33 @@ async function handleGenerate() {
       store.setOutline(result.outline || '', result.pages)
       store.recordId = null
 
-      // 保存用户上传的图片到 store
+      // Save uploaded images to store
       if (imageFiles.length > 0) {
         store.userImages = imageFiles
       } else {
         store.userImages = []
       }
 
-      // 清理 ComposerInput 的预览
+      // Clear ComposerInput previews
       composerRef.value?.clearPreviews()
       uploadedImageFiles.value = []
 
       router.push('/outline')
     } else {
-      error.value = result.error || '生成大纲失败'
+      setError(result.error || '生成大纲失败，请重试')
     }
   } catch (err: any) {
-    error.value = err.message || '网络错误，请重试'
+    const message = err.message || '网络错误'
+    setError(`请求失败：${message}`)
   } finally {
     loading.value = false
   }
 }
+
+// Cleanup timer on unmount
+onUnmounted(() => {
+  if (errorTimer) clearTimeout(errorTimer)
+})
 </script>
 
 <style scoped>
@@ -131,12 +169,28 @@ async function handleGenerate() {
 .hero-section {
   text-align: center;
   margin-bottom: 40px;
-  padding: 50px 60px;
-  animation: fadeIn 0.6s ease-out;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(10px);
+  padding: 56px 64px;
+  animation: fadeInUp 0.8s ease-out;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 28px;
+  box-shadow: 
+    0 4px 24px rgba(255, 36, 66, 0.04),
+    0 12px 48px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 36, 66, 0.2), transparent);
 }
 
 .hero-content {
@@ -214,22 +268,105 @@ async function handleGenerate() {
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  background: #FF4D4F;
+  background: linear-gradient(135deg, #FF4D4F 0%, #FF7875 100%);
   color: white;
-  padding: 12px 24px;
-  border-radius: 50px;
-  box-shadow: 0 8px 24px rgba(255, 77, 79, 0.3);
+  padding: 14px 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(255, 77, 79, 0.35);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   z-index: 1000;
-  animation: slideUp 0.3s ease-out;
+  max-width: 90vw;
+  overflow: hidden;
+}
+
+.error-message {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.error-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.error-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.error-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.5);
+  animation: progressShrink 5s linear forwards;
+}
+
+@keyframes progressShrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Toast transition */
+.toast-enter-active {
+  animation: toastIn 0.3s ease-out;
+}
+
+.toast-leave-active {
+  animation: toastOut 0.25s ease-in forwards;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.95);
+  }
 }
 
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(24px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {

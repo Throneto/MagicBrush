@@ -1,7 +1,13 @@
 <template>
-  <!-- 主题输入组合框 -->
-  <div class="composer-container">
-    <!-- 输入区域 -->
+  <!-- Topic input composer with drag-drop support -->
+  <div 
+    class="composer-container" 
+    :class="{ 'is-dragover': isDragging }"
+    @dragover.prevent="handleDragOver"
+    @dragleave.prevent="handleDragLeave"
+    @drop.prevent="handleDrop"
+  >
+    <!-- Input area -->
     <div class="composer-input-wrapper">
       <div class="search-icon-static">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,10 +23,39 @@
         @keydown.enter.prevent="handleEnter"
         :disabled="loading"
         rows="1"
+        :maxlength="MAX_LENGTH"
       ></textarea>
+      <!-- Clear button -->
+      <button 
+        v-if="modelValue.length > 0 && !loading" 
+        class="clear-btn" 
+        @click="handleClear"
+        title="清空"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </button>
     </div>
 
-    <!-- 已上传图片预览 -->
+    <!-- Character count -->
+    <div class="char-count" :class="{ 'is-warning': charCountWarning }">
+      {{ modelValue.length }} / {{ MAX_LENGTH }}
+    </div>
+
+    <!-- Drag overlay hint -->
+    <div v-if="isDragging" class="drag-overlay">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </svg>
+      <span>松开以上传图片</span>
+    </div>
+
+    <!-- Uploaded images preview -->
     <div v-if="uploadedImages.length > 0" class="uploaded-images-preview">
       <div
         v-for="(img, idx) in uploadedImages"
@@ -40,10 +75,10 @@
       </div>
     </div>
 
-    <!-- 工具栏 -->
+    <!-- Toolbar -->
     <div class="composer-toolbar">
       <div class="toolbar-left">
-        <label class="tool-btn" :class="{ 'active': uploadedImages.length > 0 }" title="上传参考图">
+        <label class="tool-btn" :class="{ 'active': uploadedImages.length > 0 }" title="上传参考图（可拖拽）">
           <input
             type="file"
             accept="image/*"
@@ -75,41 +110,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 
 /**
- * 主题输入组合框组件
+ * Topic Input Composer Component
  *
- * 功能：
- * - 主题文本输入（自动调整高度）
- * - 参考图片上传（最多5张）
- * - 生成按钮
+ * Features:
+ * - Auto-resizing text input
+ * - Image upload (max 5 images)
+ * - Character count with warning
+ * - Drag-and-drop image upload
+ * - Clear button
  */
 
-// 定义上传的图片类型
+// Constants
+const MAX_LENGTH = 500
+const MAX_IMAGES = 5
+
+// Uploaded image type
 interface UploadedImage {
   file: File
   preview: string
 }
 
-// 定义 Props
+// Props
 const props = defineProps<{
   modelValue: string
   loading: boolean
 }>()
 
-// 定义 Emits
+// Emits
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'generate'): void
   (e: 'imagesChange', images: File[]): void
 }>()
 
-// 输入框引用
+// Refs
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
-
-// 已上传的图片
 const uploadedImages = ref<UploadedImage[]>([])
+const isDragging = ref(false)
+
+// Computed: character count warning (when > 80%)
+const charCountWarning = computed(() => {
+  return props.modelValue.length > MAX_LENGTH * 0.8
+})
 
 /**
  * 处理输入变化
@@ -179,7 +224,7 @@ function removeImage(index: number) {
 }
 
 /**
- * 通知父组件图片变化
+ * Notify parent about image changes
  */
 function emitImagesChange() {
   const files = uploadedImages.value.map(img => img.file)
@@ -187,32 +232,135 @@ function emitImagesChange() {
 }
 
 /**
- * 清理所有预览 URL
+ * Handle clear button click
+ */
+function handleClear() {
+  emit('update:modelValue', '')
+  adjustHeight()
+}
+
+/**
+ * Handle dragover event
+ */
+function handleDragOver() {
+  isDragging.value = true
+}
+
+/**
+ * Handle dragleave event
+ */
+function handleDragLeave() {
+  isDragging.value = false
+}
+
+/**
+ * Handle drop event for image upload
+ */
+function handleDrop(event: DragEvent) {
+  isDragging.value = false
+  
+  const files = event.dataTransfer?.files
+  if (!files) return
+  
+  Array.from(files).forEach(file => {
+    // Only accept images
+    if (!file.type.startsWith('image/')) return
+    // Limit to MAX_IMAGES
+    if (uploadedImages.value.length >= MAX_IMAGES) return
+    
+    const preview = URL.createObjectURL(file)
+    uploadedImages.value.push({ file, preview })
+  })
+  
+  emitImagesChange()
+}
+
+/**
+ * Clear all preview URLs
  */
 function clearPreviews() {
   uploadedImages.value.forEach(img => URL.revokeObjectURL(img.preview))
   uploadedImages.value = []
 }
 
-// 组件卸载时清理
+// Cleanup on unmount
 onUnmounted(() => {
   clearPreviews()
 })
 
-// 暴露方法给父组件
+// Expose methods to parent
 defineExpose({
   clearPreviews
 })
 </script>
 
 <style scoped>
-/* 组合框容器 */
+/* Container */
 .composer-container {
   background: white;
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.composer-container.is-dragover {
+  border-color: var(--primary, #ff2442);
+  box-shadow: 0 4px 24px rgba(255, 36, 66, 0.15);
+}
+
+/* Drag overlay */
+.drag-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 36, 66, 0.06);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--primary, #ff2442);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Character count */
+.char-count {
+  text-align: right;
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  margin-right: 4px;
+  transition: color 0.2s;
+}
+
+.char-count.is-warning {
+  color: #fa8c16;
+}
+
+/* Clear button */
+.clear-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-btn:hover {
+  background: #f5f5f5;
+  color: #999;
 }
 
 /* 输入区域 */

@@ -1,121 +1,51 @@
 <template>
-  <!-- 图片网格轮播背景 -->
+  <!-- Gradient background with floating geometric decorations -->
   <div class="showcase-background" :class="{ 'is-ready': isReady }">
-    <div class="showcase-grid" :style="{ transform: `translateY(-${scrollOffset}px)` }">
-      <div v-for="(image, index) in showcaseImages" :key="index" class="showcase-item">
-        <img :src="`/assets/showcase/${image}`" :alt="`封面 ${index + 1}`" loading="eager" />
-      </div>
+    <!-- Multi-layer gradient -->
+    <div class="gradient-layer"></div>
+
+    <!-- Floating geometric shapes -->
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+      <div class="shape shape-6"></div>
     </div>
-    <div class="showcase-overlay"></div>
+
+    <!-- Subtle pattern overlay -->
+    <div class="pattern-overlay"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 /**
- * 图片展示背景组件
+ * Showcase Background Component
  *
- * 功能：
- * - 加载展示图片列表
- * - 无限循环滚动动画
- * - 毛玻璃遮罩效果
- * - 平滑淡入过渡
+ * Features:
+ * - Multi-layer gradient background
+ * - Floating geometric decorations
+ * - Subtle animated elements
+ * - Smooth fade-in transition
  */
 
-// 展示图片列表
-const showcaseImages = ref<string[]>([])
-
-// 滚动偏移量
-const scrollOffset = ref(0)
-
-// 是否准备好显示
 const isReady = ref(false)
 
-// 滚动定时器
-let scrollInterval: ReturnType<typeof setInterval> | null = null
-
-/**
- * 预加载图片
- */
-function preloadImages(images: string[]): Promise<void[]> {
-  const promises = images.map(image => {
-    return new Promise<void>((resolve) => {
-      const img = new Image()
-      img.onload = () => resolve()
-      img.onerror = () => resolve() // 即使加载失败也继续
-      img.src = `/assets/showcase/${image}`
+onMounted(() => {
+  // Short delay for smooth transition
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      isReady.value = true
     })
   })
-  return Promise.all(promises)
-}
-
-/**
- * 加载展示图片列表
- */
-async function loadShowcaseImages() {
-  try {
-    const response = await fetch('/assets/showcase_manifest.json')
-    const data = await response.json()
-    const originalImages = data.covers || []
-
-    // 预加载前几张图片（可视区域内的）
-    const preloadCount = Math.min(originalImages.length, 22) // 约2行
-    await preloadImages(originalImages.slice(0, preloadCount))
-
-    // 复制图片数组3次以实现无缝循环
-    showcaseImages.value = [...originalImages, ...originalImages, ...originalImages]
-
-    // 短暂延迟后显示，确保 DOM 渲染完成
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        isReady.value = true
-      })
-    })
-
-    // 启动平滑滚动动画
-    if (showcaseImages.value.length > 0) {
-      startScrollAnimation(originalImages.length)
-    }
-  } catch (e) {
-    console.error('加载展示图片失败:', e)
-    isReady.value = true // 即使失败也显示
-  }
-}
-
-/**
- * 启动滚动动画
- */
-function startScrollAnimation(originalCount: number) {
-  // 计算网格总高度（每行约180px：164px图片 + 16px间距）
-  const rowHeight = 180
-  const itemsPerRow = 11
-  const totalRows = Math.ceil(originalCount / itemsPerRow)
-  const sectionHeight = totalRows * rowHeight
-
-  scrollInterval = setInterval(() => {
-    scrollOffset.value += 1
-
-    // 滚动到第二组末尾时重置到第一组开始位置
-    if (scrollOffset.value >= sectionHeight) {
-      scrollOffset.value = 0
-    }
-  }, 30) // 每30ms移动1px，实现流畅滚动
-}
-
-onMounted(() => {
-  loadShowcaseImages()
-})
-
-onUnmounted(() => {
-  if (scrollInterval) {
-    clearInterval(scrollInterval)
-  }
 })
 </script>
 
 <style scoped>
-/* 背景容器 */
+/* Background container */
 .showcase-background {
   position: fixed;
   top: 0;
@@ -125,61 +55,147 @@ onUnmounted(() => {
   z-index: -1;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.6s ease-out;
+  transition: opacity 0.8s ease-out;
 }
 
 .showcase-background.is-ready {
   opacity: 1;
 }
 
-/* 图片网格 */
-.showcase-grid {
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  gap: 16px;
-  padding: 20px;
-  width: 100%;
-  will-change: transform;
-}
-
-/* 单个展示项 */
-.showcase-item {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.showcase-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* 毛玻璃遮罩层 */
-.showcase-overlay {
+/* Multi-layer gradient */
+.gradient-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.7) 0%,
-    rgba(255, 255, 255, 0.65) 30%,
-    rgba(255, 255, 255, 0.6) 100%
-  );
-  backdrop-filter: blur(2px);
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 100, 130, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255, 182, 193, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(255, 218, 185, 0.12) 0%, transparent 40%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255, 36, 66, 0.05) 0%, transparent 40%),
+    linear-gradient(180deg, #ffffff 0%, #fefefe 50%, #fafafa 100%);
 }
 
-/* 响应式布局 */
+/* Floating geometric shapes */
+.floating-shapes {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+  filter: blur(60px);
+  animation: float 20s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.3) 0%, rgba(255, 218, 185, 0.2) 100%);
+  top: -100px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, rgba(255, 36, 66, 0.1) 0%, rgba(255, 140, 150, 0.15) 100%);
+  bottom: -50px;
+  left: -80px;
+  animation-delay: -5s;
+}
+
+.shape-3 {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, rgba(255, 220, 200, 0.25) 0%, rgba(255, 180, 160, 0.15) 100%);
+  top: 40%;
+  left: 10%;
+  animation-delay: -10s;
+}
+
+.shape-4 {
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(135deg, rgba(255, 100, 130, 0.12) 0%, rgba(255, 200, 210, 0.2) 100%);
+  top: 20%;
+  right: 15%;
+  animation-delay: -7s;
+}
+
+.shape-5 {
+  width: 350px;
+  height: 350px;
+  background: linear-gradient(135deg, rgba(255, 240, 245, 0.4) 0%, rgba(255, 200, 210, 0.15) 100%);
+  bottom: 10%;
+  right: 20%;
+  animation-delay: -12s;
+}
+
+.shape-6 {
+  width: 180px;
+  height: 180px;
+  background: linear-gradient(135deg, rgba(255, 36, 66, 0.08) 0%, rgba(255, 150, 170, 0.12) 100%);
+  top: 60%;
+  left: 60%;
+  animation-delay: -3s;
+}
+
+/* Float animation */
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -15px) scale(1.02);
+  }
+  50% {
+    transform: translate(-10px, 10px) scale(0.98);
+  }
+  75% {
+    transform: translate(-20px, -10px) scale(1.01);
+  }
+}
+
+/* Pattern overlay */
+.pattern-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(255, 36, 66, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.03) 0%, transparent 50%);
+  mix-blend-mode: multiply;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .showcase-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    padding: 12px;
+  .shape {
+    filter: blur(40px);
+  }
+  
+  .shape-1, .shape-5 {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .shape-2, .shape-3, .shape-4 {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .shape-6 {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Accessibility: respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .shape {
+    animation: none;
   }
 }
 </style>

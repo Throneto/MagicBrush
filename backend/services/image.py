@@ -261,10 +261,10 @@ class ImageService:
         failed_pages = []
         cover_image_data = None
 
-        # 压缩用户上传的参考图到200KB以内（减少内存和传输开销）
+        # 压缩用户上传的参考图到30KB以内（大幅降低token消耗）
         compressed_user_images = None
         if user_images:
-            compressed_user_images = [compress_image(img, max_size_kb=200) for img in user_images]
+            compressed_user_images = [compress_image(img, max_size_kb=30) for img in user_images]
 
         # 初始化任务状态
         self._task_states[task_id] = {
@@ -321,8 +321,8 @@ class ImageService:
                 with open(cover_path, "rb") as f:
                     cover_image_data = f.read()
 
-                # 压缩封面图（减少内存占用和后续传输开销）
-                cover_image_data = compress_image(cover_image_data, max_size_kb=200)
+                # 压缩封面图（大幅降低token消耗）
+                cover_image_data = compress_image(cover_image_data, max_size_kb=30)
                 self._task_states[task_id]["cover_image"] = cover_image_data
 
                 yield {
@@ -570,8 +570,8 @@ class ImageService:
             if os.path.exists(cover_path):
                 with open(cover_path, "rb") as f:
                     cover_data = f.read()
-                # 压缩封面图到 200KB
-                reference_image = compress_image(cover_data, max_size_kb=200)
+                # 压缩封面图到 30KB（降低token消耗）
+                reference_image = compress_image(cover_data, max_size_kb=30)
 
         index, success, filename, error = self._generate_single_image(
             page,

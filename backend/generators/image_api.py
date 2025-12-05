@@ -259,8 +259,10 @@ class ImageApiGenerator(ImageGeneratorBase):
         payload = {
             "model": model,
             "messages": [{"role": "user", "content": user_content}],
-            "max_tokens": 4096,
-            "temperature": 1.0
+            "max_tokens": 150,  # Reduced from 4096 to fit within available credits
+            "temperature": 1.0,
+            # OpenRouter requires modalities parameter for image generation
+            "modalities": ["image", "text"]
         }
 
         api_url = f"{self.base_url}{self.endpoint_type}"

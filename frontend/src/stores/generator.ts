@@ -280,13 +280,27 @@ export const useGeneratorStore = defineStore('generator', {
   }
 })
 
-// 监听状态变化并自动保存（使用 watch）
+// Auto-save with debounce (using watch)
 import { watch } from 'vue'
+
+// Simple debounce utility
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  return ((...args: Parameters<T>) => {
+    if (timeoutId) clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }) as T
+}
 
 export function setupAutoSave() {
   const store = useGeneratorStore()
 
-  // 监听关键字段变化并自动保存
+  // Debounced save function (500ms delay)
+  const debouncedSave = debounce(() => {
+    store.saveToStorage()
+  }, 500)
+
+  // Watch key fields and auto-save with debounce
   watch(
     () => ({
       stage: store.stage,
@@ -298,7 +312,7 @@ export function setupAutoSave() {
       recordId: store.recordId
     }),
     () => {
-      store.saveToStorage()
+      debouncedSave()
     },
     { deep: true }
   )
