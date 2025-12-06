@@ -123,13 +123,18 @@ class Config:
         provider_config = providers[provider_name].copy()
 
         # 验证必要字段
-        if not provider_config.get('api_key'):
+        # 验证必要字段
+        # Vertex AI 模式不需要 API Key (使用 ADC)
+        is_vertexai = provider_config.get('use_vertexai', False)
+        
+        if not is_vertexai and not provider_config.get('api_key'):
             logger.error(f"图片服务商 [{provider_name}] 未配置 API Key")
             raise ValueError(
                 f"服务商 {provider_name} 未配置 API Key\n"
                 "解决方案：\n"
                 "1. 在系统设置页面编辑该服务商，填写 API Key\n"
-                "2. 或手动在 image_providers.yaml 中添加 api_key 字段"
+                "2. 或手动在 image_providers.yaml 中添加 api_key 字段\n"
+                "3. 如果使用 Vertex AI，请在配置中设置 use_vertexai: true"
             )
 
         provider_type = provider_config.get('type', provider_name)
