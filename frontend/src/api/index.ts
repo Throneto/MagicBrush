@@ -296,7 +296,6 @@ export async function generateImagesPost(
   onError: (event: ProgressEvent) => void,
   onFinish: (event: FinishEvent) => void,
   onStreamError: (error: Error) => void,
-  onStreamError: (error: Error) => void,
   userImages?: File[],
   userTopic?: string,
   step: 'all' | 'cover' | 'content' = 'all',
