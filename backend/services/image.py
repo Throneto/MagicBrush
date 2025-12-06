@@ -167,7 +167,8 @@ class ImageService:
                         page_content=page_content,
                         page_type=page_type,
                         full_outline=full_outline,
-                        user_topic=user_topic if user_topic else "未提供"
+                        user_topic=user_topic if user_topic else "未提供",
+                        style=style
                     )
 
                 # 调用生成器生成图片
@@ -291,6 +292,8 @@ class ImageService:
         
         # 确保 user_images 使用状态中保存的压缩版本
         current_user_images = state.get("user_images")
+        # 确保 style 使用状态中保存的
+        style = state.get("style", "小红书爆款图文风格")
 
         generated_images = []
         # 填充已生成的图片列表
@@ -611,6 +614,7 @@ class ImageService:
 
         reference_image = None
         user_images = None
+        style = "小红书爆款图文风格"
 
         # 首先尝试从任务状态中获取上下文
         if task_id in self._task_states:
@@ -623,6 +627,7 @@ class ImageService:
             if not user_topic:
                 user_topic = task_state.get("user_topic", "")
             user_images = task_state.get("user_images")
+            style = task_state.get("style", style)
 
         # 如果任务状态中没有封面图，尝试从文件系统加载
         if use_reference and reference_image is None:
@@ -640,7 +645,8 @@ class ImageService:
             0,
             full_outline,
             user_images,
-            user_topic
+            user_topic,
+            style
         )
 
         if success:
@@ -677,10 +683,13 @@ class ImageService:
         Yields:
             进度事件
         """
-        # 获取参考图
+        # 获取参考图和风格
         reference_image = None
+        style = "小红书爆款图文风格"
+        
         if task_id in self._task_states:
             reference_image = self._task_states[task_id].get("cover_image")
+            style = self._task_states[task_id].get("style", style)
 
         total = len(pages)
         success_count = 0
@@ -697,8 +706,14 @@ class ImageService:
         # 并发重试
         # 从任务状态中获取完整大纲
         full_outline = ""
+        user_images = None
+        user_topic = ""
+        
         if task_id in self._task_states:
-            full_outline = self._task_states[task_id].get("full_outline", "")
+            task_state = self._task_states[task_id]
+            full_outline = task_state.get("full_outline", "")
+            user_images = task_state.get("user_images")
+            user_topic = task_state.get("user_topic", "")
 
         with ThreadPoolExecutor(max_workers=self.MAX_CONCURRENT) as executor:
             future_to_page = {
@@ -708,12 +723,16 @@ class ImageService:
                     task_id,
                     reference_image,
                     0,  # retry_count
-                    full_outline  # 传入完整大纲
+                    full_outline,  # 传入完整大纲
+                    user_images,
+                    user_topic,
+                    style
                 ): page
                 for page in pages
             }
 
             for future in as_completed(future_to_page):
+
                 page = future_to_page[future]
                 try:
                     index, success, filename, error = future.result()
