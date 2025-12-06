@@ -20,6 +20,10 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_RETRIES=30
 RETRY_INTERVAL=2
 
+# GCP Config
+export GOOGLE_APPLICATION_CREDENTIALS="${PROJECT_ROOT}/gcp-key.json"
+export GOOGLE_CLOUD_PROJECT="redinkimage"
+
 # Print colored message
 print_msg() {
     local color=$1
