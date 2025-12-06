@@ -338,34 +338,59 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
         super().__init__(config)
         logger.debug("初始化 GoogleGenAIGenerator...")
 
-        if not self.api_key:
-            logger.error("Google GenAI API Key 未配置")
-            raise ValueError(
-                "Google GenAI API Key 未配置。\n"
-                "解决方案：在系统设置页面编辑该服务商，填写 API Key\n"
-                "获取 API Key: https://aistudio.google.com/app/apikey"
-            )
+        # Check if using Vertex AI mode
+        self.is_vertexai = config.get('use_vertexai', False)
 
-        # 初始化客户端
-        logger.debug("初始化 Google GenAI 客户端...")
-        client_kwargs = {
-            "api_key": self.api_key,
-        }
+        if self.is_vertexai:
+            # Vertex AI mode - uses Application Default Credentials (ADC)
+            # No API Key required, but need project_id and location
+            self.project_id = config.get('project_id')
+            self.location = config.get('location', 'us-central1')
 
-        # 默认使用 Gemini API (vertexai=False)，因为大多数用户使用 Google AI Studio 的 API Key
-        # Vertex AI 需要 OAuth2 认证，不支持 API Key
-        self.is_vertexai = False
+            if not self.project_id:
+                logger.error("Vertex AI 模式需要配置 project_id")
+                raise ValueError(
+                    "Vertex AI 模式需要配置 project_id。\n"
+                    "解决方案：\n"
+                    "1. 在 image_providers.yaml 中添加 project_id 字段\n"
+                    "2. 确保已运行 'gcloud auth application-default login'\n"
+                    "3. 确保项目已启用 Vertex AI API"
+                )
 
-        # 如果有 base_url，则配置 http_options
-        if self.config.get('base_url'):
-            logger.debug(f"  使用自定义 base_url: {self.config['base_url']}")
-            client_kwargs["http_options"] = {
-                "base_url": self.config['base_url'],
-                "api_version": "v1beta"
+            logger.info(f"使用 Vertex AI 模式: project={self.project_id}, location={self.location}")
+
+            # Initialize Vertex AI client with ADC
+            client_kwargs = {
+                "vertexai": True,
+                "project": self.project_id,
+                "location": self.location,
+            }
+        else:
+            # Standard Gemini API mode - requires API Key
+            if not self.api_key:
+                logger.error("Google GenAI API Key 未配置")
+                raise ValueError(
+                    "Google GenAI API Key 未配置。\n"
+                    "解决方案：在系统设置页面编辑该服务商，填写 API Key\n"
+                    "获取 API Key: https://aistudio.google.com/app/apikey"
+                )
+
+            logger.debug("使用 Gemini API 模式")
+            client_kwargs = {
+                "api_key": self.api_key,
+                "vertexai": False,
             }
 
-        client_kwargs["vertexai"] = False
+            # 如果有 base_url，则配置 http_options
+            if self.config.get('base_url'):
+                logger.debug(f"  使用自定义 base_url: {self.config['base_url']}")
+                client_kwargs["http_options"] = {
+                    "base_url": self.config['base_url'],
+                    "api_version": "v1beta"
+                }
 
+        # Initialize client
+        logger.debug("初始化 Google GenAI 客户端...")
         self.client = genai.Client(**client_kwargs)
 
         # 默认安全设置
@@ -400,6 +425,111 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
             temperature: 温度
             model: 模型名称
             reference_image: 参考图片二进制数据（用于保持风格一致）
+            **kwargs: 其他参数
+
+        Returns:
+            图片二进制数据
+        """
+        # Check if using Imagen model (imagen-3.0, imagen-4.0, etc.)
+        if model.startswith('imagen'):
+            return self._generate_with_imagen(prompt, aspect_ratio, model)
+        else:
+            return self._generate_with_gemini(
+                prompt, aspect_ratio, temperature, model, reference_image, **kwargs
+            )
+
+    def _generate_with_imagen(
+        self,
+        prompt: str,
+        aspect_ratio: str = "3:4",
+        model: str = "imagen-4.0-generate-001",
+    ) -> bytes:
+        """
+        使用 Imagen 模型生成图片
+
+        Args:
+            prompt: 提示词
+            aspect_ratio: 宽高比
+            model: Imagen 模型名称
+
+        Returns:
+            图片二进制数据
+        """
+        logger.info(f"Imagen 生成图片: model={model}, aspect_ratio={aspect_ratio}")
+        logger.debug(f"  prompt 长度: {len(prompt)} 字符")
+
+        try:
+            # Use GenerateImagesConfig for Imagen models
+            if self.is_vertexai:
+                # Vertex AI mode supports advanced parameters
+                config = types.GenerateImagesConfig(
+                    number_of_images=1,
+                    aspect_ratio=aspect_ratio,
+                    # Parameters only available/recommended in Vertex AI
+                    output_mime_type="image/png",
+                    # Use LLM-based prompt rewriting for better results
+                    enhance_prompt=True,
+                    # Safety settings
+                    person_generation="allow_adult",
+                    safety_filter_level="block_only_high",
+                )
+            else:
+                # Basic mode (if supported via API Key in future)
+                config = types.GenerateImagesConfig(
+                    number_of_images=1,
+                    aspect_ratio=aspect_ratio,
+                )
+
+            logger.debug(f"  开始调用 Imagen API: model={model}, vertex_mode={self.is_vertexai}")
+            response = self.client.models.generate_images(
+                model=model,
+                prompt=prompt,
+                config=config,
+            )
+
+            if not response.generated_images:
+                logger.error("Imagen API 返回为空，未生成图片")
+                raise ValueError(
+                    "❌ Imagen 图片生成失败：API 返回为空\n\n"
+                    "【可能原因】\n"
+                    "1. 提示词触发了安全过滤\n"
+                    "2. 模型暂时不可用\n\n"
+                    "【解决方案】\n"
+                    "1. 修改提示词，避免敏感内容\n"
+                    "2. 稍后重试"
+                )
+
+            # Get image bytes from the first generated image
+            image_data = response.generated_images[0].image.image_bytes
+            logger.info(f"✅ Imagen 图片生成成功: {len(image_data)} bytes")
+            return image_data
+
+        except Exception as e:
+            error_str = str(e).lower()
+            # Re-raise if already formatted error message
+            if "❌" in str(e) or "【" in str(e):
+                raise
+            # Parse and format the error
+            raise Exception(parse_genai_error(e))
+
+    def _generate_with_gemini(
+        self,
+        prompt: str,
+        aspect_ratio: str = "3:4",
+        temperature: float = 1.0,
+        model: str = "gemini-3-pro-image-preview",
+        reference_image: Optional[bytes] = None,
+        **kwargs
+    ) -> bytes:
+        """
+        使用 Gemini 模型生成图片
+
+        Args:
+            prompt: 提示词
+            aspect_ratio: 宽高比
+            temperature: 温度
+            model: Gemini 模型名称
+            reference_image: 参考图片二进制数据
             **kwargs: 其他参数
 
         Returns:

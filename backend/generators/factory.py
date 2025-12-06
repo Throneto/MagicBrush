@@ -12,6 +12,7 @@ class ImageGeneratorFactory:
     # 注册的生成器类型
     GENERATORS = {
         'google_genai': GoogleGenAIGenerator,
+        'imagen': GoogleGenAIGenerator,  # Imagen 4 also uses GenAI SDK
         'openai': OpenAICompatibleGenerator,
         'openai_compatible': OpenAICompatibleGenerator,
         'image_api': ImageApiGenerator,
