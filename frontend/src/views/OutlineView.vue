@@ -163,6 +163,7 @@ const goBack = () => {
 }
 
 const startGeneration = () => {
+  store.startGeneration()
   router.push('/generate')
 }
 const movePageUp = (index: number) => {

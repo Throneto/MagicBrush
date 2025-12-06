@@ -200,6 +200,9 @@ export const useGeneratorStore = defineStore('generator', {
     // 开始生成
     startGeneration() {
       this.stage = 'generating'
+      this.taskId = null // 清除旧任务ID
+      this.recordId = null // 清除旧记录ID
+      this.waitingApproval = false // 重置审批状态
       this.progress.current = 0
       this.progress.total = this.outline.pages.length
       this.progress.status = 'generating'
