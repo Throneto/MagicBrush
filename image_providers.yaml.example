@@ -10,6 +10,9 @@ providers:
   gemini:
     type: google_genai
     api_key: AIzaxxxxxxxxxxxxxxxxxxxxxxxxx
+    # 可用模型:
+    # - gemini-3-pro-image-preview (最新预览版)
+    # - gemini-2.0-flash-exp (快速版)
     model: gemini-3-pro-image-preview
     high_concurrency: false  # 是否启用高并发，GCP 300$ 试用账号不建议启用
 

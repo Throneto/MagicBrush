@@ -342,29 +342,29 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
         self.is_vertexai = config.get('use_vertexai', False)
 
         if self.is_vertexai:
-            # Vertex AI mode - uses Application Default Credentials (ADC)
-            # No API Key required, but need project_id and location
-            self.project_id = config.get('project_id')
-            self.location = config.get('location', 'us-central1')
-
-            if not self.project_id:
-                logger.error("Vertex AI 模式需要配置 project_id")
-                raise ValueError(
-                    "Vertex AI 模式需要配置 project_id。\n"
-                    "解决方案：\n"
-                    "1. 在 image_providers.yaml 中添加 project_id 字段\n"
-                    "2. 确保已运行 'gcloud auth application-default login'\n"
-                    "3. 确保项目已启用 Vertex AI API"
-                )
-
-            logger.info(f"使用 Vertex AI 模式: project={self.project_id}, location={self.location}")
-
-            # Initialize Vertex AI client with ADC
+            # Vertex AI mode
             client_kwargs = {
                 "vertexai": True,
-                "project": self.project_id,
-                "location": self.location,
             }
+
+            # Optional: API Key for Vertex AI (if supported/required for specific models)
+            if self.api_key:
+                logger.debug("Vertex AI 模式: 使用 API Key")
+                client_kwargs["api_key"] = self.api_key
+            
+            # Optional: Project/Location for ADC authentication
+            if config.get('project_id'):
+                client_kwargs["project"] = config.get('project_id')
+            if config.get('location'):
+                client_kwargs["location"] = config.get('location')
+            
+            # Warn if neither API Key nor Project ID is provided
+            if not self.api_key and not config.get('project_id'):
+                # Check environment variables as fallback
+                if not os.environ.get('GOOGLE_CLOUD_PROJECT') and not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
+                   logger.warning("Vertex AI 模式未配置 project_id 且无 API Key，也未发现 GCP 环境变量，认证可能会失败")
+
+            logger.info(f"使用 Vertex AI 模式: project={config.get('project_id', 'auto')}, has_key={bool(self.api_key)}")
         else:
             # Standard Gemini API mode - requires API Key
             if not self.api_key:
