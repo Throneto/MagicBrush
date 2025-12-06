@@ -5,7 +5,18 @@
         <h1 class="page-title">编辑大纲</h1>
         <p class="page-subtitle">调整页面顺序，修改文案，打造完美内容</p>
       </div>
-      <div style="display: flex; gap: 12px;">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <!-- 风格选择器 -->
+        <div class="style-selector">
+          <select 
+            :value="store.style" 
+            @change="updateStyle($event)"
+            class="style-select"
+          >
+            <option v-for="s in styleOptions" :key="s.value" :value="s.value">{{ s.label }}</option>
+          </select>
+        </div>
+
         <button class="btn btn-secondary" @click="goBack" style="background: white; border: 1px solid var(--border-color);">
           上一步
         </button>
@@ -37,6 +48,15 @@
           <div class="card-controls">
             <div class="drag-handle" title="拖拽排序">
                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
+            </div>
+            <!-- 移动端排序按钮 -->
+            <div class="mobile-sort-btns">
+              <button class="icon-btn" @click="movePageUp(idx)" :disabled="idx === 0" title="上移">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+              </button>
+              <button class="icon-btn" @click="movePageDown(idx)" :disabled="idx === store.outline.pages.length - 1" title="下移">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
             </div>
             <button class="icon-btn" @click="deletePage(idx)" title="删除此页">
                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -77,6 +97,21 @@ const store = useGeneratorStore()
 
 const dragOverIndex = ref<number | null>(null)
 const draggedIndex = ref<number | null>(null)
+
+const styleOptions = [
+  { label: '默认 (爆款图文)', value: '小红书爆款图文风格' },
+  { label: '3D 黏土风', value: '3D Clay 黏土风' },
+  { label: '3D 写实 (光泽感)', value: '具有光泽感和真实光影的3D/写实风格, High Gloss 3D Render, Octane Render' },
+  { label: '日系手绘', value: '日系手绘插画' },
+  { label: '日韩时尚插画', value: '日韩系极简风格的时尚插画 (Fashion Illustration)，强调材质垂坠感，增加面部细节，微写实' },
+  { label: '极简摄影', value: '极简摄影风' },
+  { label: '赛博朋克', value: '赛博朋克未来风' }
+]
+
+const updateStyle = (e: Event) => {
+  const target = e.target as HTMLSelectElement
+  store.setStyle(target.value)
+}
 
 const getPageTypeName = (type: string) => {
   const names = {
@@ -129,6 +164,17 @@ const goBack = () => {
 
 const startGeneration = () => {
   router.push('/generate')
+}
+const movePageUp = (index: number) => {
+  if (index > 0) {
+    store.movePage(index, index - 1)
+  }
+}
+
+const movePageDown = (index: number) => {
+  if (index < store.outline.pages.length - 1) {
+    store.movePage(index, index + 1)
+  }
 }
 </script>
 
@@ -283,5 +329,62 @@ const startGeneration = () => {
   font-size: 32px;
   font-weight: 300;
   margin-bottom: 8px;
+}
+
+.style-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  color: #333;
+  background-color: white;
+  min-width: 160px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.style-select:hover {
+  border-color: var(--primary);
+}
+
+.mobile-sort-btns {
+  display: none;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .page-header > div:last-child {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .style-selector {
+    flex: 1;
+    min-width: 100%;
+  }
+
+  .style-select {
+    width: 100%;
+  }
+  
+  .outline-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+  
+  .mobile-sort-btns {
+    display: flex;
+  }
+  
+  .drag-handle {
+    display: none;
+  }
 }
 </style>

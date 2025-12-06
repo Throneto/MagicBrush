@@ -296,8 +296,11 @@ export async function generateImagesPost(
   onError: (event: ProgressEvent) => void,
   onFinish: (event: FinishEvent) => void,
   onStreamError: (error: Error) => void,
+  onStreamError: (error: Error) => void,
   userImages?: File[],
-  userTopic?: string
+  userTopic?: string,
+  step: 'all' | 'cover' | 'content' = 'all',
+  style: string = '小红书爆款图文风格'
 ) {
   try {
     // 将用户图片转换为 base64
@@ -325,7 +328,9 @@ export async function generateImagesPost(
         task_id: taskId,
         full_outline: fullOutline,
         user_images: userImagesBase64.length > 0 ? userImagesBase64 : undefined,
-        user_topic: userTopic || ''
+        user_topic: userTopic || '',
+        step,
+        style
       })
     })
 
@@ -371,6 +376,10 @@ export async function generateImagesPost(
               break
             case 'error':
               onError(data)
+              break
+            case 'waiting_approval':
+              // @ts-ignore - hacking dynamic event type
+              onProgress({ ...data, status: 'waiting_approval' })
               break
             case 'finish':
               onFinish(data)

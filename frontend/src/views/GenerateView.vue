@@ -4,14 +4,15 @@
       <div>
         <h1 class="page-title">生成结果</h1>
         <p class="page-subtitle">
-          <span v-if="isGenerating">正在生成第 {{ store.progress.current + 1 }} / {{ store.progress.total }} 页</span>
+          <span v-if="store.waitingApproval">请确认封面风格满意后，继续生成后续内容</span>
+          <span v-else-if="isGenerating">正在生成第 {{ store.progress.current + 1 }} / {{ store.progress.total }} 页</span>
           <span v-else-if="hasFailedImages">{{ failedCount }} 张图片生成失败，可点击重试</span>
           <span v-else>全部 {{ store.progress.total }} 张图片生成完成</span>
         </p>
       </div>
       <div style="display: flex; gap: 10px;">
         <button
-          v-if="hasFailedImages && !isGenerating"
+          v-if="hasFailedImages && !isGenerating && !store.waitingApproval"
           class="btn btn-primary"
           @click="retryAllFailed"
           :disabled="isRetrying"
@@ -24,7 +25,33 @@
       </div>
     </div>
 
-    <div class="card">
+    <!-- 审批模式：大封面预览 -->
+    <div v-if="store.waitingApproval" class="approval-container">
+       <div class="card approval-card">
+          <div class="approval-preview">
+             <img v-if="coverImage" :src="coverImage.url" alt="封面预览" />
+             <div v-else class="spinner"></div>
+          </div>
+          <div class="approval-actions">
+             <h3>封面生成完成</h3>
+             <p>这是整篇文章的视觉风格基准。如果满意，后续页面将保持此风格；如果不满意，请重新生成封面。</p>
+             
+             <div class="action-buttons">
+                <button class="btn btn-secondary" @click="regenerateCover" :disabled="isRetrying">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                  重绘封面
+                </button>
+                <button class="btn btn-primary" @click="continueGeneration">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  满意，生成剩余内容
+                </button>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <!-- 正常网格模式 -->
+    <div v-else class="card">
       <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
         <span style="font-weight: 600;">生成进度</span>
         <span style="color: var(--primary); font-weight: 600;">{{ Math.round(progressPercent) }}%</span>
@@ -118,6 +145,8 @@ const hasFailedImages = computed(() => store.images.some(img => img.status === '
 
 const failedCount = computed(() => store.images.filter(img => img.status === 'error').length)
 
+const coverImage = computed(() => store.images.find(img => img.index === 0))
+
 const getStatusText = (status: string) => {
   const texts: Record<string, string> = {
     generating: '生成中',
@@ -161,6 +190,42 @@ function retrySingleImage(index: number) {
 // 重新生成图片（成功的也可以重新生成，立即返回不等待）
 function regenerateImage(index: number) {
   retrySingleImage(index)
+}
+
+// 重绘封面（在审批阶段）
+async function regenerateCover() {
+  isRetrying.value = true
+  try {
+     const page = store.outline.pages.find(p => p.index === 0)
+     if (!page || !store.taskId) return
+     
+     // 清除旧的封面URL以显示加载状态
+     const coverImg = store.images.find(img => img.index === 0)
+     if(coverImg) coverImg.url = ''
+
+     const result = await apiRegenerateImage(store.taskId, page, true, {
+        fullOutline: store.outline.raw || '',
+        userTopic: store.topic || ''
+     })
+
+     if (result.success && result.image_url) {
+        store.updateImage(0, result.image_url)
+     } else {
+         error.value = result.error || '封面重绘失败'
+     }
+  } catch (e) {
+      error.value = '封面重绘异常: ' + String(e)
+  } finally {
+      isRetrying.value = false
+  }
+}
+
+// 继续生成剩余内容
+function continueGeneration() {
+  store.waitingApproval = false
+  
+  // 发起第二阶段请求：生成 content
+  runGeneration('content')
 }
 
 // 批量重试所有失败的图片
@@ -210,36 +275,26 @@ async function retryAllFailed() {
   }
 }
 
-onMounted(async () => {
-  if (store.outline.pages.length === 0) {
-    router.push('/')
-    return
-  }
-
-  // 创建历史记录（如果还没有）
-  if (!store.recordId) {
-    try {
-      const result = await createHistory(store.topic, {
-        raw: store.outline.raw,
-        pages: store.outline.pages
-      })
-      if (result.success && result.record_id) {
-        store.recordId = result.record_id
-        console.log('创建历史记录:', store.recordId)
-      }
-    } catch (e) {
-      console.error('创建历史记录失败:', e)
-    }
-  }
-
-  store.startGeneration()
-
+// 封装生成逻辑
+function runGeneration(step: 'all' | 'cover' | 'content') {
   generateImagesPost(
     store.outline.pages,
-    null,
-    store.outline.raw,  // 传入完整大纲文本
+    store.taskId, // 复用 taskId
+    store.outline.raw,
     // onProgress
     (event) => {
+      // 处理 "waiting_approval" 特殊状态
+      if (event.status === 'waiting_approval') {
+          // @ts-ignore
+          store.waitingApproval = true
+          // @ts-ignore
+          if (event.cover_url) {
+              // @ts-ignore
+              store.updateProgress(0, 'done', event.cover_url)
+          }
+          return
+      }
+
       console.log('Progress:', event)
     },
     // onComplete
@@ -257,6 +312,9 @@ onMounted(async () => {
     // onFinish
     async (event) => {
       console.log('Finish:', event)
+      // 如果还在等待审批，不要结束任务
+      if (store.waitingApproval) return
+      
       store.finishGeneration(event.task_id)
 
       // 更新历史记录
@@ -300,15 +358,124 @@ onMounted(async () => {
       console.error('Stream Error:', err)
       error.value = '生成失败: ' + err.message
     },
-    // userImages - 用户上传的参考图片
+    // userImages
     store.userImages.length > 0 ? store.userImages : undefined,
-    // userTopic - 用户原始输入
-    store.topic
+    // userTopic
+    store.topic,
+    // step
+    step,
+    // style
+    store.style
   )
+}
+
+onMounted(async () => {
+  if (store.outline.pages.length === 0) {
+    router.push('/')
+    return
+  }
+
+  // 创建历史记录（如果还没有）
+  if (!store.recordId) {
+    try {
+      const result = await createHistory(store.topic, {
+        raw: store.outline.raw,
+        pages: store.outline.pages
+      })
+      if (result.success && result.record_id) {
+        store.recordId = result.record_id
+        console.log('创建历史记录:', store.recordId)
+      }
+    } catch (e) {
+      console.error('创建历史记录失败:', e)
+    }
+  }
+
+  // 如果已经在生成中或有结果，不需要重新开始
+  // 但如果 store 中没有 taskId，说明是刚刷新进来，需要重新开始
+  if (!store.images.length || !store.taskId) {
+      store.startGeneration()
+      // 第一步：只生成封面
+      runGeneration('cover')
+  } else if (store.waitingApproval) {
+      // 恢复等待状态（如果刷新）
+      // 这里可能需要重新触发一次 cover 检查或者手动恢复 UI
+      // 简化处理：直接显示
+  }
 })
 </script>
 
 <style scoped>
+/* 审批模式样式 */
+.approval-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.approval-card {
+    display: flex;
+    gap: 40px;
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+    align-items: center;
+}
+
+.approval-preview {
+    width: 320px;
+    aspect-ratio: 3/4;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: #f5f5f5;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.approval-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.approval-actions {
+    flex: 1;
+}
+
+.approval-actions h3 {
+    margin-top: 0;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.approval-actions p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.action-buttons .btn {
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+
+/* 原有样式保持不变 */
+.container {
+    padding-bottom: 60px;
+}
+
 .image-preview {
   aspect-ratio: 3/4;
   overflow: hidden;
@@ -468,6 +635,52 @@ onMounted(async () => {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .page-header > div:last-child {
+    width: 100%;
+  }
+
+  .page-header .btn {
+    flex: 1;
+  }
+
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .approval-card {
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .approval-preview {
+    width: 100%;
+    max-width: 240px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
   }
 }
 </style>

@@ -58,9 +58,13 @@
 import { RouterView, RouterLink } from 'vue-router'
 import { onMounted } from 'vue'
 import { setupAutoSave } from './stores/generator'
+import { useGeneratorStore } from './stores/generator'
+
+const store = useGeneratorStore()
 
 // 启用自动保存到 localStorage
 onMounted(() => {
+  store.restoreSession()
   setupAutoSave()
 })
 </script>
