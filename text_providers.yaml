@@ -15,7 +15,7 @@ providers:
     model: qwen-max
     type: openai_compatible
   third_party:
-    api_key: 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
+    api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     base_url: https://openrouter.ai/api/v1
     model: google/gemini-3-pro-preview
     type: openai_compatible
