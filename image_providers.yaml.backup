@@ -6,7 +6,7 @@ providers:
     model: gemini-3-pro-image-preview
     type: google_genai
   openai_image:
-    api_key: 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
+    api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
     base_url: https://openrouter.ai/api/v1/chat/completions
     endpoint_type: /v1/images/generations
     high_concurrency: false
