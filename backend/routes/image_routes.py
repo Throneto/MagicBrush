@@ -298,6 +298,7 @@ def create_image_blueprint():
             use_reference = data.get('use_reference', True)
             full_outline = data.get('full_outline', '')
             user_topic = data.get('user_topic', '')
+            custom_prompt = data.get('custom_prompt', '') # 获取自定义提示词
 
             log_request('/regenerate', {
                 'task_id': task_id,
@@ -316,7 +317,8 @@ def create_image_blueprint():
             result = image_service.regenerate_image(
                 task_id, page, use_reference,
                 full_outline=full_outline,
-                user_topic=user_topic
+                user_topic=user_topic,
+                custom_prompt=custom_prompt # 传递自定义提示词
             )
 
             if result["success"]:

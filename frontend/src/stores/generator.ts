@@ -75,7 +75,8 @@ function saveState(state: GeneratorState) {
       progress: state.progress,
       images: state.images,
       taskId: state.taskId,
-      recordId: state.recordId
+      recordId: state.recordId,
+      waitingApproval: state.waitingApproval
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
   } catch (e) {
@@ -103,7 +104,7 @@ export const useGeneratorStore = defineStore('generator', {
       taskId: saved.taskId || null,
       recordId: saved.recordId || null,
       userImages: [],  // 不从 localStorage 恢复
-      waitingApproval: false
+      waitingApproval: saved.waitingApproval || false
     }
   },
 
@@ -315,30 +316,38 @@ export const useGeneratorStore = defineStore('generator', {
         // 如果正在生成中或等待审批，尝试从服务器获取最新状态
         if (parsed.stage === 'generating') {
           const { getTaskStatus } = await import('../api')
-          const result = await getTaskStatus(this.taskId)
+          if (this.taskId) {
+            const result = await getTaskStatus(this.taskId)
 
-          if (result.success && result.state) {
-            console.log('Restoring session from server:', result.state)
-            // 更新图片状态
-            this.images = result.state.images.map((img: any) => ({
-              index: img.index,
-              url: img.url,
-              status: img.status === 'success' ? 'done' : (img.status === 'failed' ? 'error' : img.status)
-            }))
+            if (result.success && result.state) {
+              console.log('Restoring session from server:', result.state)
+              // 更新图片状态
+              this.images = result.state.images.map((img: any) => ({
+                index: img.index,
+                url: img.url,
+                status: img.status === 'success' ? 'done' : (img.status === 'failed' ? 'error' : img.status)
+              }))
 
-            // 恢复审批状态
-            // 如果只有第一张图好了，且第二张没开始，就算 waiting
-            const coverDone = this.images[0]?.status === 'done'
-            const contentNotStarted = !this.images[1] || this.images[1].status === 'pending'
-
-            if (coverDone && contentNotStarted) {
-              this.waitingApproval = true
+              // 恢复审批状态
+              if (typeof parsed.waitingApproval === 'boolean') {
+                this.waitingApproval = parsed.waitingApproval
+              } else {
+                // Fallback logic if not saved:
+                // 如果只有第一张图好了，且第二张没开始，就算 waiting
+                const coverDone = this.images[0]?.status === 'done'
+                // pending isn't a valid status, check for generating
+                const contentNotStarted = !this.images[1] || this.images[1].status === 'generating'
+                if (coverDone && contentNotStarted) {
+                  this.waitingApproval = true
+                }
+              }
             }
           }
         }
       } catch (e) {
         console.error('Failed to restore session:', e)
       }
+
     }
   }
 })
@@ -372,7 +381,10 @@ export function setupAutoSave() {
       progress: store.progress,
       images: store.images,
       taskId: store.taskId,
-      recordId: store.recordId
+      images: store.images,
+      taskId: store.taskId,
+      recordId: store.recordId,
+      waitingApproval: store.waitingApproval
     }),
     () => {
       debouncedSave()

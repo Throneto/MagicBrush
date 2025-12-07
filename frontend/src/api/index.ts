@@ -77,6 +77,7 @@ export async function regenerateImage(
   context?: {
     fullOutline?: string
     userTopic?: string
+    customPrompt?: string
   }
 ): Promise<{ success: boolean; index: number; image_url?: string; error?: string }> {
   const response = await axios.post(`${API_BASE_URL}/regenerate`, {
@@ -84,7 +85,8 @@ export async function regenerateImage(
     page,
     use_reference: useReference,
     full_outline: context?.fullOutline,
-    user_topic: context?.userTopic
+    user_topic: context?.userTopic,
+    custom_prompt: context?.customPrompt
   })
   return response.data
 }
@@ -454,5 +456,15 @@ export async function testConnection(config: {
   error?: string
 }> {
   const response = await axios.post(`${API_BASE_URL}/config/test`, config)
+  return response.data
+}
+
+// 获取任务状态
+export async function getTaskStatus(taskId: string): Promise<{
+  success: boolean
+  state: any
+  error?: string
+}> {
+  const response = await axios.get(`${API_BASE_URL}/images/tasks/${taskId}/state`)
   return response.data
 }

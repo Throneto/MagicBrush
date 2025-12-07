@@ -27,26 +27,44 @@
 
     <!-- 审批模式：大封面预览 -->
     <div v-if="store.waitingApproval" class="approval-container">
+       <!-- 错误提示 -->
+       <div v-if="error" class="error-toast" @click="error = ''">
+          {{ error }}
+       </div>
+
        <div class="card approval-card">
           <div class="approval-preview">
-             <img v-if="coverImage" :src="coverImage.url" alt="封面预览" />
-             <div v-else class="spinner"></div>
+             <img v-if="coverImage && coverImage.url" :src="coverImage.url" alt="封面预览" />
+             <div v-else class="spinner-large">
+                <div class="spinner"></div>
+                <div class="loading-text">正在重绘中...</div>
+             </div>
           </div>
           <div class="approval-actions">
              <h3>封面生成完成</h3>
-             <p>这是整篇文章的视觉风格基准。如果满意，后续页面将保持此风格；如果不满意，请重新生成封面。</p>
-             
-             <div class="action-buttons">
-                <button class="btn btn-secondary" @click="regenerateCover" :disabled="isRetrying">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                  重绘封面
-                </button>
-                <button class="btn btn-primary" @click="continueGeneration">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  满意，生成剩余内容
-                </button>
-             </div>
-          </div>
+              <p>这是整篇文章的视觉风格基准。如果满意，后续页面将保持此风格；如果不满意，请重新生成封面。</p>
+              
+              <!-- 修改指令输入框 -->
+              <div class="modification-input" style="margin-bottom: 20px;">
+                <textarea 
+                  v-model="modificationPrompt" 
+                  placeholder="对封面不满意？请输入修改指令，例如：换个背景颜色、人物再活泼一点..."
+                  :disabled="isRetrying"
+                  style="width: 100%; min-height: 80px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; resize: vertical;"
+                ></textarea>
+              </div>
+
+              <div class="action-buttons">
+                 <button class="btn btn-secondary" @click="regenerateCover" :disabled="isRetrying">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                   {{ isRetrying ? '重绘中...' : '根据指令重绘封面' }}
+                 </button>
+                 <button class="btn btn-primary" @click="continueGeneration">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                   满意，生成剩余内容
+                 </button>
+              </div>
+           </div>
        </div>
     </div>
 
@@ -74,7 +92,6 @@
               <button
                 class="overlay-btn"
                 @click="regenerateImage(image.index)"
-                :disabled="image.status === 'retrying'"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M23 4v6h-6"></path>
@@ -126,13 +143,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneratorStore } from '../stores/generator'
-import { generateImagesPost, regenerateImage as apiRegenerateImage, retryFailedImages as apiRetryFailed, createHistory, updateHistory, getImageUrl } from '../api'
+import { generateImagesPost, regenerateImage as apiRegenerateImage, retryFailedImages as apiRetryFailed, createHistory, updateHistory } from '../api'
 
 const router = useRouter()
 const store = useGeneratorStore()
 
 const error = ref('')
 const isRetrying = ref(false)
+const modificationPrompt = ref('') // 新增：修改指令
 
 const isGenerating = computed(() => store.progress.status === 'generating')
 
@@ -161,7 +179,150 @@ const getStatusText = (status: string) => {
   return texts[status] || '等待中'
 }
 
-// ... (skip unchanged functions) ...
+// 重试单张图片（异步并发执行，不阻塞）
+function retrySingleImage(index: number) {
+  if (!store.taskId) return
+
+  const page = store.outline.pages.find(p => p.index === index)
+  if (!page) return
+
+  // 立即设置为重试状态
+  store.setImageRetrying(index)
+
+  // 构建上下文信息
+  const context = {
+    fullOutline: store.outline.raw || '',
+    userTopic: store.topic || ''
+  }
+
+  // 异步执行重绘，不阻塞
+  apiRegenerateImage(store.taskId, page, true, context)
+    .then(result => {
+      if (result.success && result.image_url) {
+        store.updateImage(index, result.image_url)
+      } else {
+        store.updateProgress(index, 'error', undefined, result.error)
+      }
+    })
+    .catch(e => {
+      store.updateProgress(index, 'error', undefined, String(e))
+    })
+}
+
+// 重新生成图片（成功的也可以重新生成，立即返回不等待）
+function regenerateImage(index: number) {
+  retrySingleImage(index)
+}
+
+// 重绘封面（在审批阶段）
+async function regenerateCover() {
+  console.log('[Frontend] regenerateCover triggered')
+  isRetrying.value = true
+  error.value = '' // 清除之前的错误
+  
+  try {
+     if (!store.taskId) {
+         console.error('[Frontend] Missing taskId')
+         error.value = '系统异常：缺少任务ID'
+         return
+     }
+
+     // 动态查找封面页（优先 type='cover'）
+     const page = store.outline.pages.find(p => p.type === 'cover') || store.outline.pages[0]
+     if (!page) {
+         console.error('[Frontend] Cover page not found')
+         error.value = '系统异常：未找到封面页面'
+         return
+     }
+     
+     console.log('[Frontend] Regenerating cover for page:', page.index, 'Prompt:', modificationPrompt.value)
+
+     // 清除旧的封面URL以显示加载状态
+     const coverImg = store.images.find(img => img.index === page.index)
+     if(coverImg) {
+        console.log('[Frontend] Clearing old cover URL locally')
+        coverImg.url = ''
+     } else {
+        console.warn('[Frontend] Cover image state not found locally')
+     }
+
+     const result = await apiRegenerateImage(store.taskId, page, true, {
+        fullOutline: store.outline.raw || '',
+        userTopic: store.topic || '',
+        customPrompt: modificationPrompt.value // 传入自定义修改指令
+     })
+
+     console.log('[Frontend] API Result:', result)
+
+     if (result.success && result.image_url) {
+        store.updateImage(page.index, result.image_url)
+        modificationPrompt.value = '' // 清空输入框
+     } else {
+         error.value = result.error || '封面重绘失败'
+         console.error('[Frontend] Regeneration failed:', result.error)
+     }
+  } catch (e) {
+      console.error('[Frontend] Exception in regenerateCover:', e)
+      error.value = '封面重绘异常: ' + String(e)
+  } finally {
+      isRetrying.value = false
+  }
+}
+
+// 继续生成剩余内容
+function continueGeneration() {
+  store.waitingApproval = false
+  
+  // 发起第二阶段请求：生成 content
+  runGeneration('content')
+}
+
+// 批量重试所有失败的图片
+async function retryAllFailed() {
+  if (!store.taskId) return
+
+  const failedPages = store.getFailedPages()
+  if (failedPages.length === 0) return
+
+  isRetrying.value = true
+
+  // 设置所有失败的图片为重试状态
+  failedPages.forEach(page => {
+    store.setImageRetrying(page.index)
+  })
+
+  try {
+    await apiRetryFailed(
+      store.taskId,
+      failedPages,
+      // onProgress
+      () => {},
+      // onComplete
+      (event) => {
+        if (event.image_url) {
+          store.updateImage(event.index, event.image_url)
+        }
+      },
+      // onError
+      (event) => {
+        store.updateProgress(event.index, 'error', undefined, event.message)
+      },
+      // onFinish
+      () => {
+        isRetrying.value = false
+      },
+      // onStreamError
+      (err) => {
+        console.error('重试失败:', err)
+        isRetrying.value = false
+        error.value = '重试失败: ' + err.message
+      }
+    )
+  } catch (e) {
+    isRetrying.value = false
+    error.value = '重试失败: ' + String(e)
+  }
+}
 
 // 封装生成逻辑
 function runGeneration(step: 'all' | 'cover' | 'content') {
@@ -172,10 +333,16 @@ function runGeneration(step: 'all' | 'cover' | 'content') {
     // onProgress
     (event) => {
       // 处理 "waiting_approval" 特殊状态
+      // @ts-ignore
       if (event.status === 'waiting_approval') {
-          // @ts-ignore
           store.waitingApproval = true
-          // onComplete 已经处理了图片更新，这里不需要重复更新，且不需要硬编码 index 0
+          // 关键修复：确保保存 task_id，避免重绘时丢失
+          // @ts-ignore
+          if (event.task_id) {
+             console.log('[Frontend] Received task_id from waiting_approval:', event.task_id)
+             store.taskId = event.task_id
+             store.saveToStorage()
+          }
           return
       }
 
@@ -245,7 +412,7 @@ function runGeneration(step: 'all' | 'cover' | 'content') {
     // userImages
     store.userImages.length > 0 ? store.userImages : undefined,
     // userTopic
-    store.topic,
+    store.topic || '',
     // step
     step,
     // style
@@ -560,6 +727,39 @@ onMounted(async () => {
     width: 100%;
     justify-content: center;
   }
+}
+
+
+.spinner-large {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.loading-text {
+    font-size: 14px;
+    color: var(--primary);
+}
+
+.error-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 77, 79, 0.9);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  cursor: pointer;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translate(-50%, -100%); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
 }
 
 @media (max-width: 480px) {

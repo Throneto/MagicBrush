@@ -85,7 +85,7 @@ class ImageService:
         """获取任务当前状态"""
         return self._task_states.get(task_id)
 
-    def _format_prompt(self, page: dict, full_outline: str, user_topic: str, style: str = "小红书爆款图文风格") -> str:
+    def _save_image(self, image_data: bytes, filename: str, task_dir: str = None) -> str:
         """
         保存图片到本地，同时生成缩略图
 
@@ -126,7 +126,8 @@ class ImageService:
         full_outline: str = "",
         user_images: Optional[List[bytes]] = None,
         user_topic: str = "",
-        style: str = "小红书爆款图文风格"
+        style: str = "小红书爆款图文风格",
+        custom_prompt: str = "" # 新增
     ) -> Tuple[int, bool, Optional[str], Optional[str]]:
         """
         生成单张图片（带自动重试）
@@ -163,13 +164,20 @@ class ImageService:
                     logger.debug(f"  使用短 prompt 模式 ({len(prompt)} 字符)")
                 else:
                     # 完整 prompt 模式：包含大纲和用户需求
-                    prompt = self.prompt_template.format(
+                    base_prompt = self.prompt_template.format(
                         page_content=page_content,
                         page_type=page_type,
                         full_outline=full_outline,
                         user_topic=user_topic if user_topic else "未提供",
                         style=style
                     )
+                    
+                    # 如果有自定义提示词，追加到 Prompt 末尾
+                    if custom_prompt:
+                        prompt = f"{base_prompt}\n\n【用户修改指令/由于是重绘，请严格遵守以下指令】\n{custom_prompt}"
+                        logger.info(f"  使用自定义修改指令: {custom_prompt}")
+                    else:
+                        prompt = base_prompt
 
                 # 调用生成器生成图片
                 if self.provider_config.get('type') == 'google_genai':
@@ -594,7 +602,8 @@ class ImageService:
         page: Dict,
         use_reference: bool = True,
         full_outline: str = "",
-        user_topic: str = ""
+        user_topic: str = "",
+        custom_prompt: str = "" # 新增
     ) -> Dict[str, Any]:
         """
         重试生成单张图片
@@ -646,7 +655,8 @@ class ImageService:
             full_outline,
             user_images,
             user_topic,
-            style
+            style,
+            custom_prompt # 传入
         )
 
         if success:
@@ -792,7 +802,8 @@ class ImageService:
         page: Dict,
         use_reference: bool = True,
         full_outline: str = "",
-        user_topic: str = ""
+        user_topic: str = "",
+        custom_prompt: str = "" # 新增
     ) -> Dict[str, Any]:
         """
         重新生成图片（用户手动触发，即使成功的也可以重新生成）
@@ -810,7 +821,8 @@ class ImageService:
         return self.retry_single_image(
             task_id, page, use_reference,
             full_outline=full_outline,
-            user_topic=user_topic
+            user_topic=user_topic,
+            custom_prompt=custom_prompt
         )
 
     def get_image_path(self, task_id: str, filename: str) -> str:
