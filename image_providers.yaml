@@ -9,16 +9,16 @@ providers:
   gemini3:
     type: google_genai
     use_vertexai: true
-    api_key: AQ.Ab8RN6JARUFe8eEkq6Xc5UTHBZ-ZzavMrQCXMZMwM8JG9etJnw
+    api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     model: gemini-3-pro-image-preview
   gemini:
     gemini:
     type: google_genai
-    api_key: AQ.Ab8RN6JARUFe8eEkq6Xc5UTHBZ-ZzavMrQCXMZMwM8JG9etJnw
+    api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     model: gemini-3-pro-image-preview
     high_concurrency: false    
   openai_image:
-    api_key: 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
+    api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     base_url: https://openrouter.ai/api
     endpoint_type: /v1/chat/completions
     high_concurrency: false
