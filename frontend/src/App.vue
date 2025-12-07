@@ -3,8 +3,8 @@
     <!-- 侧边栏 Sidebar -->
     <aside class="layout-sidebar">
       <div class="logo-area">
-        <img src="/logo.png" alt="红墨" class="logo-icon" />
-        <span class="logo-text">红墨</span>
+        <img src="/logo.png" alt="魔刷" class="logo-icon" />
+        <span class="logo-text">魔刷</span>
       </div>
       
       <nav class="nav-menu">
@@ -24,10 +24,10 @@
       
       <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <img src="/logo.png" alt="默子" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
+          <img src="/logo.png" alt="Harry" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
           <div>
-            <div style="font-size: 14px; font-weight: 600;">默子</div>
-            <div style="font-size: 12px; color: var(--text-sub);">mozi</div>
+            <div style="font-size: 14px; font-weight: 600;">Harry</div>
+            <div style="font-size: 12px; color: var(--text-sub);">Harry</div>
           </div>
         </div>
       </div>
@@ -42,11 +42,9 @@
         <footer v-if="route.path !== '/'" class="global-footer">
           <div class="footer-content">
             <div class="footer-text">
-              © 2025 <a href="https://github.com/HisMax/RedInk" target="_blank" rel="noopener noreferrer">RedInk</a> by 默子 (Histone)
+              © 2025 MagicBrush by Harry (Histone)
             </div>
-            <div class="footer-license">
-              Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>
-            </div>
+
           </div>
         </footer>
       </RouterView>

@@ -1,62 +1,30 @@
-![](images/logo.png)
 
----
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Vue 3](https://img.shields.io/badge/vue-3.x-green.svg)](https://vuejs.org/)
 
-# 红墨 - 小红书AI图文生成器
+# 魔刷 - 小红书AI图文生成器
 
 > 让传播不再需要门槛，让创作从未如此简单
 
-![](images/index.gif)
-
 <p align="center">
-  <em>红墨首页</em>
+  <em>魔刷首页</em>
 </p>
 
-<p align="center">
-  <img src="images/showcase-grid.png" alt="使用红墨生成的各类小红书封面" width="600"/>
-</p>
-
-<p align="center">
-  <em>使用红墨生成的各类小红书封面 - AI驱动，风格统一，文字准确</em>
-</p>
+> **注意**: 本项目专注于纯粹的AI内容创作，不包含演示图片。
 
 
 
 ## 写在前面
 
-前段时间默子在 Linux.do 发了一个用 Nano banana Pro 做 PPT 的帖子,收获了 600 多个赞。很多人用🍌Nano banana Pro 去做产品宣传图、直接生成漫画等等。我就在想:**为什么不拿🍌2来做点更功利、更刺激的事情?**
+前段时间Harry在 Linux.do 发了一个用 Nano banana Pro 做 PPT 的帖子,收获了 600 多个赞。很多人用🍌Nano banana Pro 去做产品宣传图、直接生成漫画等等。我就在想:**为什么不拿🍌2来做点更功利、更刺激的事情?**
 
 于是就有了这个项目。一句话一张图片生成小红书图文
 
 ---
 
-## ✨ 效果展示
 
-### 输入一句话,就能生成完整的小红书图文
-
-#### 提示词：秋季显白美甲（暗广一个：默子牌美甲），图片 是我的小红书主页。符合我的风格生成
-
-#### 同时我还截图了我的小红书主页，包括我的头像，签名，背景，姓名什么的
-
-![示例1](./images/example-1.png)
-
-#### 然后等待10-20秒后，就会有每一页的大纲，大家可以根据的自己的需求去调整页面顺序（不建议），自定义每一个页面的内容（这个很建议）
-
-![示例2](./images/example-2.png)
-
-#### 首先生成的是封面页
-
-![示例3](./images/example-3.png)
-
-#### 然后稍等一会儿后，会生成后面的所有页面（这里是并发生成的所有页面（默认是15个），如果大家的API供应商无法支持高并发的话，记得要去改一下设置）
-
-![示例4](./images/example-4.png)
-
----
 
 ## 🏗️ 技术架构
 
@@ -82,14 +50,14 @@
 **最简单的部署方式，一行命令即可启动：**
 
 ```bash
-docker run -d -p 12398:12398 -v ./history:/app/history -v ./output:/app/output histonemax/redink:latest
+docker run -d -p 12398:12398 -v ./history:/app/history -v ./output:/app/output histonemax/magicbrush:latest
 ```
 
 访问 http://localhost:12398，在 Web 界面的**设置页面**配置你的 API Key 即可使用。
 
 **使用 docker-compose（可选）：**
 
-下载 [docker-compose.yml](https://github.com/HisMax/RedInk/blob/main/docker-compose.yml) 后：
+下载 [docker-compose.yml](docker-compose.yml) 后：
 
 ```bash
 docker-compose up -d
@@ -113,8 +81,8 @@ docker-compose up -d
 
 ### 1. 克隆项目
 ```bash
-git clone https://github.com/HisMax/RedInk.git
-cd RedInk
+git clone https://github.com/HisMax/MagicBrush.git
+cd MagicBrush
 ```
 
 ### 2. 配置 API 服务
@@ -155,19 +123,32 @@ pnpm dev
 
 ---
 
+## 🌊 工作流
+
+MagicBrush 采用精简高效的线性工作流：
+
+1.  **意图识别**: AI 分析用户输入的主题，提取关键概念。
+2.  **大纲生成**: 基于小红书爆款逻辑，自动构建 6-9 页的内容架构。
+3.  **内容填充**: 根据大纲，并行生成每一页的详细文案。
+4.  **视觉合成**: 调用绘图模型，为每一页匹配风格统一的高质量配图。
+5.  **最终渲染**: 将文案与图片结合，输出可直接发布的作品。
+
+---
+
 ## 🎮 使用指南
 
-### 基础使用
-1. **输入主题**: 在首页输入想要创作的主题,如"如何在家做拿铁"
-2. **生成大纲**: AI 自动生成 6-9 页的内容大纲
-3. **编辑确认**: 可以编辑和调整每一页的描述
-4. **生成图片**: 点击生成,实时查看进度
-5. **下载使用**: 一键下载所有图片
+### 极简操作
 
-### 进阶使用
-- **上传参考图片**: 适合品牌方,保持品牌视觉风格
-- **修改描述词**: 精确控制每一页的内容和构图
-- **重新生成**: 对不满意的页面单独重新生成
+1.  **确定主题**: 在首页输入框键入你的创意，例如 "秋日拿铁制作教程"。
+2.  **审核大纲**: 系统自动生成内容框架，支持手动微调。
+3.  **一键生成**: 确认无误后，点击生成，AI 将接管后续所有工作。
+4.  **下载发布**: 预览生成结果，一键打包下载高清图文。
+
+### 进阶技巧
+
+-   **风格参考**: 上传一张图片作为风格参考，保持品牌调性一致。
+-   **精准控制**: 在生成前修改单页描述词，定制画面细节。
+-   **局部重绘**: 对单张不满意的图片进行单独重新生成。
 
 ---
 
@@ -275,7 +256,7 @@ providers:
 
 ### v1.3.0 (2025-11-26)
 - ✨ 新增 Docker 支持，一键部署
-- ✨ 发布官方 Docker 镜像到 Docker Hub: `histonemax/redink`
+- ✨ 发布官方 Docker 镜像到 Docker Hub: `histonemax/magicbrush`
 - 🔧 Flask 自动检测前端构建产物，支持单容器部署
 - 🔧 Docker 镜像内置空白配置模板，保护 API Key 安全
 - 📝 更新 README，添加 Docker 部署说明
@@ -304,7 +285,7 @@ providers:
 
 ## 交流讨论与赞助
 
-- **GitHub Issues**: [https://github.com/HisMax/RedInk/issues](https://github.com/HisMax/RedInk/issues)
+- **GitHub Issues**: [https://github.com/HisMax/MagicBrush/issues](https://github.com/HisMax/MagicBrush/issues)
 
 ### 联系作者
 
@@ -312,31 +293,17 @@ providers:
 - **微信**: Histone2024（添加请注明来意）
 - **GitHub**: [@HisMax](https://github.com/HisMax)
 
-### 用爱发电，如果可以，请默子喝一杯☕️咖啡吧
+### 用爱发电，如果可以，请Harry喝一杯☕️咖啡吧
 
-<img src="images/coffee.jpg" alt="赞赏码" width="300"/>
+
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=HisMax/RedInk&type=Date)](https://star-history.com/#HisMax/RedInk&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=HisMax/MagicBrush&type=Date)](https://star-history.com/#HisMax/MagicBrush&Date)
 
 ---
 
-## 📄 开源协议
 
-### 个人使用 - CC BY-NC-SA 4.0
-
-本项目采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议进行开源
-
-**你可以自由地：**
-- ✅ **个人使用** - 用于学习、研究、个人项目
-- ✅ **分享** - 在任何媒介以任何形式复制、发行本作品
-- ✅ **修改** - 修改、转换或以本作品为基础进行创作
-
-**但需要遵守以下条款：**
-- 📝 **署名** - 必须给出适当的署名，提供指向本协议的链接，同时标明是否对原始作品作了修改
-- 🚫 **非商业性使用** - 不得将本作品用于商业目的
-- 🔄 **相同方式共享** - 如果你修改、转换或以本作品为基础进行创作，你必须以相同的协议分发你的作品
 
 ### 商业授权
 
@@ -350,7 +317,7 @@ providers:
 - 📧 Email: histonemax@gmail.com
 - 💬 微信: Histone2024（请注明"商业授权咨询"）
 
-默子会根据你的具体使用场景提供灵活的商业授权方案。
+Harry会根据你的具体使用场景提供灵活的商业授权方案。
 
 ---
 
@@ -370,7 +337,7 @@ providers:
 
 ## 👨‍💻 作者
 
-**默子 (Histone)** - AI 创业者 | Python & 深度学习
+**Harry (Histone)** - AI 创业者 | Python & 深度学习
 
 - 🏠 位置: 中国杭州
 - 🚀 状态: 创业中

@@ -1,0 +1,33 @@
+active_provider: gemini3
+providers:
+  imagen4:
+    type: google_genai
+    use_vertexai: true
+    project_id: redinkimage
+    location: us-central1
+    model: imagen-4.0-generate-preview-06-06
+  gemini3:
+    type: google_genai
+    use_vertexai: true
+    api_key: AQ.Ab8RN6JARUFe8eEkq6Xc5UTHBZ-ZzavMrQCXMZMwM8JG9etJnw
+    model: gemini-3-pro-image-preview
+  gemini:
+    gemini:
+    type: google_genai
+    api_key: AQ.Ab8RN6JARUFe8eEkq6Xc5UTHBZ-ZzavMrQCXMZMwM8JG9etJnw
+    model: gemini-3-pro-image-preview
+    high_concurrency: false    
+  openai_image:
+    api_key: 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
+    base_url: https://openrouter.ai/api
+    endpoint_type: /v1/chat/completions
+    high_concurrency: false
+    model: google/gemini-3-pro-image-preview
+    short_prompt: true
+    type: image_api
+  vertex_gemini:
+    type: google_genai
+    use_vertexai: true
+    project_id: redinkimage
+    location: us-central1
+    model: gemini-3-pro-image-preview

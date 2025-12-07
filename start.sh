@@ -1,5 +1,5 @@
 #!/bin/bash
-# RedInk (红墨) Development Startup Script
+# MagicBrush (魔刷) Development Startup Script
 # This script starts both frontend and backend services and checks their health
 
 set -e
@@ -148,7 +148,7 @@ trap cleanup SIGINT SIGTERM
 
 # Main
 print_msg "$BLUE" "╔═══════════════════════════════════════════════════╗"
-print_msg "$BLUE" "║     🎨 RedInk (红墨) AI图文生成器 启动脚本       ║"
+print_msg "$BLUE" "║     🎨 MagicBrush (魔刷) AI图文生成器 启动脚本       ║"
 print_msg "$BLUE" "╚═══════════════════════════════════════════════════╝"
 echo ""
 
@@ -213,14 +213,14 @@ if [ "$FRONTEND_ONLY" = false ]; then
     fi
     
     # Start backend in background
-    uv run python -m backend.app > /tmp/redink_backend.log 2>&1 &
+    uv run python -m backend.app > /tmp/magicbrush_backend.log 2>&1 &
     BACKEND_PID=$!
     print_msg "$GREEN" "  Backend started (PID: $BACKEND_PID)"
     
     # Check backend health
     check_backend_health || {
-        print_msg "$RED" "Backend failed to start. Check logs: /tmp/redink_backend.log"
-        cat /tmp/redink_backend.log | tail -20
+        print_msg "$RED" "Backend failed to start. Check logs: /tmp/magicbrush_backend.log"
+        cat /tmp/magicbrush_backend.log | tail -20
         exit 1
     }
     echo ""
@@ -239,7 +239,7 @@ if [ "$BACKEND_ONLY" = false ]; then
     fi
     
     # Start frontend in background
-    npm run dev > /tmp/redink_frontend.log 2>&1 &
+    npm run dev > /tmp/magicbrush_frontend.log 2>&1 &
     FRONTEND_PID=$!
     print_msg "$GREEN" "  Frontend started (PID: $FRONTEND_PID)"
     
@@ -247,8 +247,8 @@ if [ "$BACKEND_ONLY" = false ]; then
     
     # Check frontend health
     check_frontend_health || {
-        print_msg "$RED" "Frontend failed to start. Check logs: /tmp/redink_frontend.log"
-        cat /tmp/redink_frontend.log | tail -20
+        print_msg "$RED" "Frontend failed to start. Check logs: /tmp/magicbrush_frontend.log"
+        cat /tmp/magicbrush_frontend.log | tail -20
         exit 1
     }
     echo ""
