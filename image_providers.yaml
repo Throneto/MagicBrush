@@ -3,8 +3,8 @@ providers:
   imagen4:
     type: google_genai
     use_vertexai: true
-    project_id: redinkimage
-    location: us-central1
+    project_id: xxxxxxxxxx
+    location: xxxxxxxxxxxxxxxxxxxx
     model: imagen-4.0-generate-preview-06-06
   gemini3:
     type: google_genai
@@ -28,6 +28,6 @@ providers:
   vertex_gemini:
     type: google_genai
     use_vertexai: true
-    project_id: redinkimage
-    location: us-central1
+    project_id: xxxxxxxxxxxxxxxxxxxxx
+    location:xxxxxxxxxxxxxxxxxxxxx
     model: gemini-3-pro-image-preview
