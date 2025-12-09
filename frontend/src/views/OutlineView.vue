@@ -103,7 +103,12 @@ const styleOptions = [
   { label: '3D 黏土风', value: '3D Clay 黏土风' },
   { label: '3D 写实 (光泽感)', value: '具有光泽感和真实光影的3D/写实风格, High Gloss 3D Render, Octane Render' },
   { label: '日系手绘', value: '日系手绘插画' },
-  { label: '日韩时尚插画', value: '日韩系极简风格的时尚插画 (Fashion Illustration)，强调材质垂坠感，增加面部细节，微写实' },
+  { label: '日韩时尚插画', value: `日韩系极简时尚插画 (Fashion Illustration) 融合摄影质感风格:
+【面部与皮肤】hyperrealistic skin with visible pores and micro downy hair, subtle oil sheen on T-zone, ultra-detailed iris with limbal ring, natural lip lines texture, sharp individual eyelashes, delicate features
+【发丝】real individual hair strands with natural flyaway and glossy specular highlights, fluffy volume, soft watercolor edges
+【混合风格】photorealistic face and skin + ultra-realistic fabric textures + delicate watercolor fashion illustration background, perfect seamless fusion of photography and hand-painted watercolor
+【材质极致细节】visible fabric weave patterns, realistic thread details, natural fabric drape and creases, tactile material textures you can feel, soft halo fuzz catching light on knitwear
+【整体要求】full body composition, soft natural pose, warm beige textured watercolor paper background with visible paper fibers, soft golden hour side lighting, extremely shallow depth of field, hyper-detailed textures, trending on xiaohongshu` },
   { label: '极简摄影', value: '极简摄影风' },
   { label: '赛博朋克', value: '赛博朋克未来风' }
 ]

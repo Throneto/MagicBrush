@@ -317,29 +317,41 @@ export const useGeneratorStore = defineStore('generator', {
         if (parsed.stage === 'generating') {
           const { getTaskStatus } = await import('../api')
           if (this.taskId) {
-            const result = await getTaskStatus(this.taskId)
+            try {
+              const result = await getTaskStatus(this.taskId)
 
-            if (result.success && result.state) {
-              console.log('Restoring session from server:', result.state)
-              // 更新图片状态
-              this.images = result.state.images.map((img: any) => ({
-                index: img.index,
-                url: img.url,
-                status: img.status === 'success' ? 'done' : (img.status === 'failed' ? 'error' : img.status)
-              }))
+              if (result.success && result.state) {
+                console.log('Restoring session from server:', result.state)
+                // 更新图片状态
+                this.images = result.state.images.map((img: any) => ({
+                  index: img.index,
+                  url: img.url,
+                  status: img.status === 'success' ? 'done' : (img.status === 'failed' ? 'error' : img.status)
+                }))
 
-              // 恢复审批状态
-              if (typeof parsed.waitingApproval === 'boolean') {
-                this.waitingApproval = parsed.waitingApproval
-              } else {
-                // Fallback logic if not saved:
-                // 如果只有第一张图好了，且第二张没开始，就算 waiting
-                const coverDone = this.images[0]?.status === 'done'
-                // pending isn't a valid status, check for generating
-                const contentNotStarted = !this.images[1] || this.images[1].status === 'generating'
-                if (coverDone && contentNotStarted) {
-                  this.waitingApproval = true
+                // 恢复审批状态
+                if (typeof parsed.waitingApproval === 'boolean') {
+                  this.waitingApproval = parsed.waitingApproval
+                } else {
+                  // Fallback logic if not saved:
+                  // 如果只有第一张图好了，且第二张没开始，就算 waiting
+                  const coverDone = this.images[0]?.status === 'done'
+                  // pending isn't a valid status, check for generating
+                  const contentNotStarted = !this.images[1] || this.images[1].status === 'generating'
+                  if (coverDone && contentNotStarted) {
+                    this.waitingApproval = true
+                  }
                 }
+              }
+            } catch (e: any) {
+              // 404 means task expired or server restarted - clear invalid state
+              if (e.response?.status === 404) {
+                console.log('Task expired or not found, clearing invalid state')
+                this.taskId = null
+                this.stage = 'input'
+                localStorage.removeItem(STORAGE_KEY)
+              } else {
+                console.error('Failed to restore session:', e)
               }
             }
           }
@@ -379,8 +391,6 @@ export function setupAutoSave() {
       topic: store.topic,
       outline: store.outline,
       progress: store.progress,
-      images: store.images,
-      taskId: store.taskId,
       images: store.images,
       taskId: store.taskId,
       recordId: store.recordId,

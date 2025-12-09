@@ -465,6 +465,6 @@ export async function getTaskStatus(taskId: string): Promise<{
   state: any
   error?: string
 }> {
-  const response = await axios.get(`${API_BASE_URL}/images/tasks/${taskId}/state`)
+  const response = await axios.get(`${API_BASE_URL}/task/${taskId}`)
   return response.data
 }

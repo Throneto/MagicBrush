@@ -1,6 +1,26 @@
 {
   "records": [
     {
+      "id": "4f0594fb-cc0f-4fc3-8cee-41e8a446e997",
+      "title": "今年冬季高级感时尚配色穿搭",
+      "created_at": "2025-12-08T21:06:18.967534",
+      "updated_at": "2025-12-08T21:06:18.967534",
+      "status": "draft",
+      "thumbnail": null,
+      "page_count": 8,
+      "task_id": null
+    },
+    {
+      "id": "48fba6c7-c105-4974-a661-c66be0bb1a08",
+      "title": "今年冬季高级感时尚配色穿搭",
+      "created_at": "2025-12-07T05:35:37.704626",
+      "updated_at": "2025-12-07T05:35:37.704626",
+      "status": "draft",
+      "thumbnail": null,
+      "page_count": 8,
+      "task_id": null
+    },
+    {
       "id": "5c6de255-7196-4768-8be3-0052f64bdf1d",
       "title": "今年冬季高级感时尚配色穿搭",
       "created_at": "2025-12-06T19:39:27.367170",
@@ -144,7 +164,7 @@
       "id": "fbfca88f-1307-4bed-80d5-54910fdc448c",
       "title": "2025年冬季最IN服饰颜色穿搭",
       "created_at": "2025-12-05T19:18:43.796151",
-      "updated_at": "2025-12-07T01:02:01.909850",
+      "updated_at": "2025-12-08T22:39:29.936403",
       "status": "completed",
       "thumbnail": "0.png",
       "page_count": 8,
