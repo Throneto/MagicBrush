@@ -1,6 +1,26 @@
 {
   "records": [
     {
+      "id": "e9efea92-8174-43c2-9c34-d6f09c998f33",
+      "title": "新年最IN最潮服饰配色，超有氛围感",
+      "created_at": "2025-12-10T16:50:44.420840",
+      "updated_at": "2025-12-10T18:11:46.069843",
+      "status": "completed",
+      "thumbnail": "0.png",
+      "page_count": 8,
+      "task_id": "task_8455628b"
+    },
+    {
+      "id": "c24d91e6-7f73-4b0e-ac3d-b6acc222d064",
+      "title": "新年最IN最潮服饰配色，超有氛围感",
+      "created_at": "2025-12-10T16:14:15.668952",
+      "updated_at": "2025-12-10T16:14:15.668952",
+      "status": "draft",
+      "thumbnail": null,
+      "page_count": 8,
+      "task_id": null
+    },
+    {
       "id": "2fcaa923-8a71-45e6-a58d-75b84302816c",
       "title": "今年冬季高级感时尚配色穿搭",
       "created_at": "2025-12-10T12:18:13.459241",

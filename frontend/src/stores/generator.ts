@@ -29,7 +29,7 @@ export interface GeneratorState {
   progress: {
     current: number
     total: number
-    status: 'idle' | 'generating' | 'done' | 'error'
+    status: 'idle' | 'generating' | 'done' | 'error' | 'paused' | 'cancelled'
   }
 
   // 生成结果
@@ -46,6 +46,12 @@ export interface GeneratorState {
 
   // 是否等待确认封面
   waitingApproval: boolean
+
+  // 是否已暂停
+  isPaused: boolean
+
+  // 生成开始时间（用于超时检测）
+  generationStartTime: number | null
 }
 
 const STORAGE_KEY = 'generator-state'
@@ -104,7 +110,9 @@ export const useGeneratorStore = defineStore('generator', {
       taskId: saved.taskId || null,
       recordId: saved.recordId || null,
       userImages: [],  // 不从 localStorage 恢复
-      waitingApproval: saved.waitingApproval || false
+      waitingApproval: saved.waitingApproval || false,
+      isPaused: false,
+      generationStartTime: null
     }
   },
 
@@ -204,6 +212,8 @@ export const useGeneratorStore = defineStore('generator', {
       this.taskId = null // 清除旧任务ID
       this.recordId = null // 清除旧记录ID
       this.waitingApproval = false // 重置审批状态
+      this.isPaused = false // 重置暂停状态
+      this.generationStartTime = Date.now() // 记录开始时间
       this.progress.current = 0
       this.progress.total = this.outline.pages.length
       this.progress.status = 'generating'
@@ -242,6 +252,34 @@ export const useGeneratorStore = defineStore('generator', {
       this.taskId = taskId
       this.stage = 'result'
       this.progress.status = 'done'
+      this.generationStartTime = null
+    },
+
+    // 暂停生成
+    pauseGeneration() {
+      this.isPaused = true
+      this.progress.status = 'paused'
+    },
+
+    // 取消生成
+    cancelGeneration() {
+      this.isPaused = false
+      this.progress.status = 'cancelled'
+      this.generationStartTime = null
+      // Mark all 'generating' images as error
+      this.images.forEach(img => {
+        if (img.status === 'generating') {
+          img.status = 'error'
+          img.error = '用户取消'
+        }
+      })
+    },
+
+    // 恢复生成
+    resumeGeneration() {
+      this.isPaused = false
+      this.progress.status = 'generating'
+      this.generationStartTime = Date.now() // 重置开始时间
     },
 
     // 设置单个图片为重试中状态
@@ -288,6 +326,8 @@ export const useGeneratorStore = defineStore('generator', {
       this.recordId = null
       this.userImages = []
       this.waitingApproval = false
+      this.isPaused = false
+      this.generationStartTime = null
       // 清除 localStorage
       localStorage.removeItem(STORAGE_KEY)
     },

@@ -301,7 +301,8 @@ export async function generateImagesPost(
   userImages?: File[],
   userTopic?: string,
   step: 'all' | 'cover' | 'content' = 'all',
-  style: string = '小红书爆款图文风格'
+  style: string = '小红书爆款图文风格',
+  abortSignal?: AbortSignal
 ) {
   try {
     // 将用户图片转换为 base64
@@ -332,7 +333,8 @@ export async function generateImagesPost(
         user_topic: userTopic || '',
         step,
         style
-      })
+      }),
+      signal: abortSignal
     })
 
     if (!response.ok) {
@@ -348,6 +350,12 @@ export async function generateImagesPost(
     let buffer = ''
 
     while (true) {
+      // Check abort signal before reading
+      if (abortSignal?.aborted) {
+        reader.cancel()
+        throw new Error('Request aborted')
+      }
+
       const { done, value } = await reader.read()
 
       if (done) break
@@ -392,9 +400,15 @@ export async function generateImagesPost(
       }
     }
   } catch (error) {
+    // Don't report abort as error (user-initiated)
+    if ((error as Error).name === 'AbortError' || (error as Error).message === 'Request aborted') {
+      console.log('Generation request aborted')
+      return
+    }
     onStreamError(error as Error)
   }
 }
+
 
 // 扫描所有任务并同步图片列表
 export async function scanAllTasks(): Promise<{
