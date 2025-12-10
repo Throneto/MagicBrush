@@ -30,7 +30,7 @@
     <!-- 版权信息 -->
     <div class="page-footer">
       <div class="footer-copyright">
-        © 2025 MagicBrush by Harry (Histone)
+        © 2025 MagicBrush by Harry
       </div>
 
     </div>

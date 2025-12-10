@@ -42,7 +42,7 @@
         <footer v-if="route.path !== '/'" class="global-footer">
           <div class="footer-content">
             <div class="footer-text">
-              © 2025 MagicBrush by Harry (Histone)
+              © 2025 MagicBrush by Harry
             </div>
 
           </div>

@@ -104,11 +104,12 @@ const styleOptions = [
   { label: '3D 写实 (光泽感)', value: '具有光泽感和真实光影的3D/写实风格, High Gloss 3D Render, Octane Render' },
   { label: '日系手绘', value: '日系手绘插画' },
   { label: '日韩时尚插画', value: `日韩系极简时尚插画 (Fashion Illustration) 融合摄影质感风格:
+【人像身材】cute Asian girl, petite slender build with narrow shoulders, extremely long legs taking up 55% of body height, very high waist position with tiny waist, 6.5-7 heads tall doll-like proportions, slender arms with small delicate hands and feet, soft healthy slight chubbiness not bony, youthful cute proportions with slightly meaty thighs
 【面部与皮肤】hyperrealistic skin with visible pores and micro downy hair, subtle oil sheen on T-zone, ultra-detailed iris with limbal ring, natural lip lines texture, sharp individual eyelashes, delicate features
 【发丝】real individual hair strands with natural flyaway and glossy specular highlights, fluffy volume, soft watercolor edges
-【混合风格】photorealistic face and skin + ultra-realistic fabric textures + delicate watercolor fashion illustration background, perfect seamless fusion of photography and hand-painted watercolor
+【混合风格】photorealistic face and skin + ultra-realistic fabric textures + delicate watercolor fashion illustration background, perfect seamless fusion of photography and hand-painted watercolor, detailed realistic anime style with soft painting
 【材质极致细节】visible fabric weave patterns, realistic thread details, natural fabric drape and creases, tactile material textures you can feel, soft halo fuzz catching light on knitwear
-【整体要求】full body composition, soft natural pose, warm beige textured watercolor paper background with visible paper fibers, soft golden hour side lighting, extremely shallow depth of field, hyper-detailed textures, trending on xiaohongshu` },
+【整体要求】full body composition, soft natural pose, warm beige textured watercolor paper background with visible paper fibers, soft golden hour side lighting, extremely shallow depth of field, hyper-detailed textures, trending on xiaohongshu and lofter` },
   { label: '极简摄影', value: '极简摄影风' },
   { label: '赛博朋克', value: '赛博朋克未来风' }
 ]

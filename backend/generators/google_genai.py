@@ -393,12 +393,12 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
         logger.debug("初始化 Google GenAI 客户端...")
         self.client = genai.Client(**client_kwargs)
 
-        # 默认安全设置
+        # 默认安全设置 - 使用 BLOCK_NONE 禁用过滤
         self.safety_settings = [
-            types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="OFF"),
-            types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="OFF"),
-            types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="OFF"),
-            types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF"),
+            types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+            types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+            types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+            types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
         ]
         logger.info("GoogleGenAIGenerator 初始化完成")
 
@@ -581,9 +581,8 @@ class GoogleGenAIGenerator(ImageGeneratorBase):
             "aspect_ratio": aspect_ratio,
         }
 
-        # 只有在 Vertex AI 模式下才支持 output_mime_type
-        if self.is_vertexai:
-            image_config_kwargs["output_mime_type"] = "image/png"
+        # Note: output_mime_type is NOT supported for Gemini image generation via generate_content
+        # It's only for Imagen models via generate_images API
 
         generate_content_config = types.GenerateContentConfig(
             temperature=temperature,
