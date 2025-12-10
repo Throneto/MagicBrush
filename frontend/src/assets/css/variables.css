@@ -1,33 +1,53 @@
 :root {
-  /* 配色方案 - 现代简约风格 */
-  --bg-body: #F4F5F7;
-  --bg-sidebar: #FFFFFF;
-  --bg-card: #FFFFFF;
+  /* Harry Potter / Wizarding World Theme Palette */
   
-  --primary: #FF2442; /* 小红书红 */
-  --primary-hover: #FF4D6A;
-  --primary-active: #D91C36;
-  --primary-light: #FFF0F2;
-  --primary-fade: rgba(255, 36, 66, 0.08);
+  /* Backgrounds */
+  --bg-body: #0c0e14; /* Deepest Night Blue */
+  --bg-sidebar: #11141d; /* Dark Parchment / Leather */
+  --bg-card: #1a1d26; /* Obsidian / Dark Stone */
+  --bg-input: #0f1118;
   
-  --text-main: #333333;
-  --text-sub: #666666;
-  --text-secondary: #999999;
-  --text-placeholder: #CCCCCC;
+  /* Brand Colors */
+  --primary: #D3A625; /* Golden Snitch Gold */
+  --primary-hover: #E5B836;
+  --primary-active: #B88F1F;
+  --primary-light: rgba(211, 166, 37, 0.15);
+  --primary-fade: rgba(211, 166, 37, 0.08);
+
+  /* Secondary Accents */
+  --accent-purple: #9D5CFF; /* Spell Purple */
+  --accent-green: #2E8B57; /* Potion Green */
+  --accent-red: #8B0000; /* Gryffindor Red (Muted) */
+  --accent-blue: #1A3654; /* Ravenclaw Blue */
   
-  --border-color: #EEEEEE;
-  --border-hover: #E0E0E0;
+  /* Text Colors */
+  --text-main: #E2E2E2; /* Moon Silver */
+  --text-sub: #A0A0A0; /* Old Stone */
+  --text-secondary: #6B7280; /* Fog Gray */
+  --text-placeholder: #4B5563; /* Darker Gray */
   
-  --radius-xl: 24px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  /* Borders */
+  --border-color: #2D3748; /* Dark Iron */
+  --border-hover: #4A5568; /* Light Iron */
+  --border-gold: rgba(211, 166, 37, 0.3);
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.1);
-  --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.08);
+  /* Radius */
+  --radius-xl: 16px;
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 4px;
   
+  /* Effects */
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 15px rgba(211, 166, 37, 0.15);
+  
+  /* Layout */
   --sidebar-width: 260px;
-  --header-height: 64px;
+  --header-height: 70px;
+  
+  /* Typography */
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Crimson Text', serif;
 }

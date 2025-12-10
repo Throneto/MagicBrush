@@ -56,6 +56,7 @@ onMounted(() => {
   overflow: hidden;
   opacity: 0;
   transition: opacity 0.8s ease-out;
+  background-color: #0c0e14;
 }
 
 .showcase-background.is-ready {
@@ -67,11 +68,10 @@ onMounted(() => {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 100, 130, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(255, 182, 193, 0.15) 0%, transparent 40%),
-    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(255, 218, 185, 0.12) 0%, transparent 40%),
-    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(255, 36, 66, 0.05) 0%, transparent 40%),
-    linear-gradient(180deg, #ffffff 0%, #fefefe 50%, #fafafa 100%);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(29, 24, 54, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(74, 20, 140, 0.2) 0%, transparent 40%),
+    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(211, 166, 37, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(13, 71, 161, 0.15) 0%, transparent 40%);
 }
 
 /* Floating geometric shapes */
@@ -85,15 +85,16 @@ onMounted(() => {
 .shape {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.6;
-  filter: blur(60px);
-  animation: float 20s ease-in-out infinite;
+  opacity: 0.4;
+  filter: blur(80px);
+  animation: float 25s ease-in-out infinite;
+  mix-blend-mode: screen;
 }
 
 .shape-1 {
   width: 400px;
   height: 400px;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.3) 0%, rgba(255, 218, 185, 0.2) 100%);
+  background: radial-gradient(circle, rgba(74, 20, 140, 0.3) 0%, transparent 70%);
   top: -100px;
   right: -100px;
   animation-delay: 0s;
@@ -102,7 +103,7 @@ onMounted(() => {
 .shape-2 {
   width: 300px;
   height: 300px;
-  background: linear-gradient(135deg, rgba(255, 36, 66, 0.1) 0%, rgba(255, 140, 150, 0.15) 100%);
+  background: radial-gradient(circle, rgba(211, 166, 37, 0.15) 0%, transparent 70%);
   bottom: -50px;
   left: -80px;
   animation-delay: -5s;
@@ -111,7 +112,7 @@ onMounted(() => {
 .shape-3 {
   width: 250px;
   height: 250px;
-  background: linear-gradient(135deg, rgba(255, 220, 200, 0.25) 0%, rgba(255, 180, 160, 0.15) 100%);
+  background: radial-gradient(circle, rgba(13, 71, 161, 0.2) 0%, transparent 70%);
   top: 40%;
   left: 10%;
   animation-delay: -10s;
@@ -120,7 +121,7 @@ onMounted(() => {
 .shape-4 {
   width: 200px;
   height: 200px;
-  background: linear-gradient(135deg, rgba(255, 100, 130, 0.12) 0%, rgba(255, 200, 210, 0.2) 100%);
+  background: radial-gradient(circle, rgba(156, 39, 176, 0.2) 0%, transparent 70%);
   top: 20%;
   right: 15%;
   animation-delay: -7s;
@@ -129,7 +130,7 @@ onMounted(() => {
 .shape-5 {
   width: 350px;
   height: 350px;
-  background: linear-gradient(135deg, rgba(255, 240, 245, 0.4) 0%, rgba(255, 200, 210, 0.15) 100%);
+  background: radial-gradient(circle, rgba(29, 24, 54, 0.5) 0%, transparent 70%);
   bottom: 10%;
   right: 20%;
   animation-delay: -12s;
@@ -138,7 +139,7 @@ onMounted(() => {
 .shape-6 {
   width: 180px;
   height: 180px;
-  background: linear-gradient(135deg, rgba(255, 36, 66, 0.08) 0%, rgba(255, 150, 170, 0.12) 100%);
+  background: radial-gradient(circle, rgba(211, 166, 37, 0.1) 0%, transparent 70%);
   top: 60%;
   left: 60%;
   animation-delay: -3s;
@@ -150,30 +151,34 @@ onMounted(() => {
     transform: translate(0, 0) scale(1);
   }
   25% {
-    transform: translate(20px, -15px) scale(1.02);
+    transform: translate(30px, -20px) scale(1.1);
   }
   50% {
-    transform: translate(-10px, 10px) scale(0.98);
+    transform: translate(-15px, 15px) scale(0.9);
   }
   75% {
-    transform: translate(-20px, -10px) scale(1.01);
+    transform: translate(-30px, -15px) scale(1.05);
   }
 }
 
-/* Pattern overlay */
+/* Pattern overlay - Starry Dust */
 .pattern-overlay {
   position: absolute;
   inset: 0;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(255, 36, 66, 0.02) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 182, 193, 0.03) 0%, transparent 50%);
-  mix-blend-mode: multiply;
+    radial-gradient(1px 1px at 20% 80%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 20%, rgba(211, 166, 37, 0.4) 0%, transparent 100%),
+    radial-gradient(2px 2px at 40% 40%, rgba(255, 255, 255, 0.2) 0%, transparent 100%),
+    radial-gradient(2px 2px at 60% 60%, rgba(157, 92, 255, 0.2) 0%, transparent 100%);
+  background-size: 100px 100px;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .shape {
-    filter: blur(40px);
+    filter: blur(50px);
   }
   
   .shape-1, .shape-5 {

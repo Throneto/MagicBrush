@@ -297,50 +297,55 @@ defineExpose({
 <style scoped>
 /* Container */
 .composer-container {
-  background: white;
+  background: rgba(12, 14, 20, 0.6);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(211, 166, 37, 0.2);
   position: relative;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
+.composer-container:focus-within,
 .composer-container.is-dragover {
-  border-color: var(--primary, #ff2442);
-  box-shadow: 0 4px 24px rgba(255, 36, 66, 0.15);
+  border-color: var(--primary, #D3A625);
+  box-shadow: 0 0 20px rgba(211, 166, 37, 0.15);
+  background: rgba(12, 14, 20, 0.8);
 }
 
 /* Drag overlay */
 .drag-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 36, 66, 0.06);
+  background: rgba(12, 14, 20, 0.9);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: var(--primary, #ff2442);
+  color: var(--primary, #D3A625);
   font-size: 14px;
   font-weight: 500;
   z-index: 10;
   pointer-events: none;
+  border: 2px dashed var(--primary, #D3A625);
 }
 
 /* Character count */
 .char-count {
   text-align: right;
   font-size: 12px;
-  color: #999;
+  color: var(--text-sub);
   margin-top: 4px;
   margin-right: 4px;
   transition: color 0.2s;
+  font-family: monospace;
 }
 
 .char-count.is-warning {
-  color: #fa8c16;
+  color: #ff4d4f;
 }
 
 /* Clear button */
@@ -348,7 +353,7 @@ defineExpose({
   flex-shrink: 0;
   background: none;
   border: none;
-  color: #ccc;
+  color: var(--text-placeholder);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -359,8 +364,8 @@ defineExpose({
 }
 
 .clear-btn:hover {
-  background: #f5f5f5;
-  color: #999;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
 }
 
 /* 输入区域 */
@@ -373,30 +378,34 @@ defineExpose({
 .search-icon-static {
   flex-shrink: 0;
   padding-top: 8px;
-  color: #999;
+  color: var(--primary);
+  opacity: 0.8;
 }
 
 .composer-textarea {
   flex: 1;
   border: none;
   outline: none;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.6;
   resize: none;
   min-height: 44px;
   max-height: 200px;
   padding: 8px 0;
-  font-family: inherit;
-  color: var(--text-main, #1a1a1a);
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background: transparent;
+  font-style: italic;
 }
 
 .composer-textarea::placeholder {
-  color: #999;
+  color: var(--text-placeholder);
+  font-style: normal;
 }
 
 .composer-textarea:disabled {
   background: transparent;
-  color: #999;
+  color: var(--text-sub);
 }
 
 /* 已上传图片预览 */
@@ -406,9 +415,10 @@ defineExpose({
   gap: 12px;
   margin-top: 16px;
   padding: 16px;
-  background: #fafafa;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
   align-items: center;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
 .uploaded-image-item {
@@ -417,7 +427,8 @@ defineExpose({
   height: 60px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .uploaded-image-item img {
@@ -433,15 +444,15 @@ defineExpose({
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 .uploaded-image-item:hover .remove-image-btn {
@@ -449,14 +460,17 @@ defineExpose({
 }
 
 .remove-image-btn:hover {
-  background: var(--primary, #ff2442);
+  background: var(--primary, #D3A625);
+  border-color: var(--primary, #D3A625);
+  color: #000;
 }
 
 .upload-hint {
   flex: 1;
-  font-size: 12px;
-  color: var(--text-sub, #666);
+  font-size: 13px;
+  color: var(--text-sub);
   text-align: right;
+  font-style: italic;
 }
 
 /* 工具栏 */
@@ -466,7 +480,7 @@ defineExpose({
   align-items: center;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .toolbar-left {
@@ -482,21 +496,24 @@ defineExpose({
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #f5f5f5;
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
   cursor: pointer;
-  color: #666;
-  transition: all 0.2s;
+  color: var(--text-sub);
+  transition: all 0.3s;
 }
 
 .tool-btn:hover {
-  background: #eee;
-  color: var(--primary, #ff2442);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .tool-btn.active {
-  background: rgba(255, 36, 66, 0.1);
-  color: var(--primary, #ff2442);
+  background: rgba(211, 166, 37, 0.1);
+  color: var(--primary, #D3A625);
+  border-color: rgba(211, 166, 37, 0.3);
+  box-shadow: 0 0 10px rgba(211, 166, 37, 0.1);
 }
 
 .badge-count {
@@ -505,30 +522,45 @@ defineExpose({
   right: -4px;
   min-width: 18px;
   height: 18px;
-  background: var(--primary, #ff2442);
-  color: white;
+  background: var(--primary, #D3A625);
+  color: #000;
   border-radius: 9px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 4px;
+  border: 2px solid #1a1d26;
 }
 
 /* 生成按钮 */
 .generate-btn {
-  padding: 10px 24px;
+  padding: 10px 28px;
   font-size: 15px;
   border-radius: 100px;
   display: flex;
   align-items: center;
   gap: 8px;
+  background: linear-gradient(135deg, var(--primary) 0%, #B88F1F 100%);
+  color: #1a1d26;
+  border: none;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  box-shadow: 0 0 15px rgba(211, 166, 37, 0.2);
+  transition: all 0.3s;
+}
+
+.generate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(211, 166, 37, 0.4);
+  filter: brightness(1.1);
 }
 
 .generate-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 /* 加载动画 */

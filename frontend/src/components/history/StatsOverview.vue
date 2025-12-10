@@ -75,7 +75,7 @@ defineProps<{
 .stats-overview {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 24px;
   margin-bottom: 32px;
 }
 
@@ -84,72 +84,83 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px 24px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  transition: all 0.2s ease;
+  padding: 24px 28px;
+  background: rgba(12, 14, 20, 0.6);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .stat-box:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-4px);
+  border-color: rgba(211, 166, 37, 0.3);
+  background: rgba(12, 14, 20, 0.8);
 }
 
 /* 图标圆圈 */
 .stat-icon-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .stat-icon-circle.blue {
   background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .stat-icon-circle.green {
   background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .stat-icon-circle.orange {
   background: rgba(249, 115, 22, 0.1);
-  color: #f97316;
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 /* 统计内容 */
 .stat-content h4 {
-  font-size: 13px;
+  font-family: var(--font-heading);
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-sub);
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.5px;
 }
 
 .stat-content .number {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  font-family: var(--font-heading);
 }
 
 /* 响应式布局 */
 @media (max-width: 768px) {
   .stats-overview {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
 
   .stat-box {
-    padding: 16px 20px;
+    padding: 20px;
   }
 
   .stat-content .number {
-    font-size: 24px;
+    font-size: 28px;
   }
 }
 </style>

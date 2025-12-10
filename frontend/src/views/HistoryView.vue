@@ -434,37 +434,45 @@ onMounted(async () => {
   align-items: center;
   margin-bottom: 24px;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0;
+  padding-bottom: 16px;
 }
 
 .search-mini {
   position: relative;
-  width: 240px;
+  width: 280px;
   margin-bottom: 10px;
 }
 
 .search-mini input {
   width: 100%;
-  padding: 8px 12px 8px 36px;
+  padding: 10px 12px 10px 40px;
   border-radius: 100px;
   border: 1px solid var(--border-color);
   font-size: 14px;
-  background: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+  color: var(--text-main);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-body);
 }
 
 .search-mini input:focus {
   border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 3px var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(211, 166, 37, 0.2);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .search-mini .icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #ccc;
+  color: var(--text-placeholder);
+}
+
+.search-mini input:focus + .icon {
+  color: var(--primary);
 }
 
 /* Gallery Grid */
@@ -485,32 +493,45 @@ onMounted(async () => {
 }
 
 .page-btn {
-  padding: 8px 16px;
+  padding: 8px 20px;
   border: 1px solid var(--border-color);
-  background: white;
+  background: rgba(0,0,0,0.2);
   border-radius: 6px;
   cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.2s;
+  font-family: var(--font-heading);
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .page-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  color: var(--text-placeholder);
 }
 
 /* Empty State */
 .empty-state-large {
   text-align: center;
-  padding: 80px 0;
+  padding: 100px 0;
   color: var(--text-sub);
 }
 
 .empty-img {
   font-size: 64px;
-  opacity: 0.5;
+  opacity: 0.3;
+  color: var(--text-placeholder);
+  margin-bottom: 16px;
 }
 
 .empty-state-large .empty-tips {
   margin-top: 10px;
-  color: var(--text-placeholder);
+  color: var(--text-secondary);
+  font-style: italic;
 }
 </style>

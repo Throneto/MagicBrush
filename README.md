@@ -129,5 +129,21 @@ MagicBrush/
 ## 🤝 贡献指南
 欢迎提交 Issue 和 Pull Request！
 
+## 💐 致谢
+
+MagicBrush 基于开源项目 [RedInk](https://github.com/HisMax/RedInk) 开发，感谢原作者的贡献。
+
 ## 📄 许可证
-[MIT License](LICENSE)
+
+本项目采用 **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)** 协议。
+
+这意味着您可以：
+- **分享** — 在任何媒介以任何形式复制、发行本作品。
+- **演绎** — 修改、转换或以本作品为基础进行创作。
+
+惟须遵守下列条件：
+- **署名** — 您必须提供适当的证书，提供指向本许可协议的链接，同时标明是否（对原始作品）作了修改。
+- **非商业性使用** — 您不得将本作品用于商业目的。
+- **相同方式共享** — 如果您再混合、转换或者基于本作品进行创作，您必须基于与原先许可协议相同的许可协议分发您贡献的作品。
+
+详情请参阅 [LICENSE](LICENSE) 文件。

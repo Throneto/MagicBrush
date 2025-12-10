@@ -62,7 +62,7 @@ import { computed } from 'vue'
  */
 
 // 定义记录类型
-interface Record {
+interface HistoryItem {
   id: string
   title: string
   status: 'draft' | 'completed' | 'generating'
@@ -74,14 +74,14 @@ interface Record {
 
 // 定义 Props
 const props = defineProps<{
-  record: Record
+  record: HistoryItem
 }>()
 
 // 定义 Emits
 defineEmits<{
   (e: 'preview', id: string): void
   (e: 'edit', id: string): void
-  (e: 'delete', record: Record): void
+  (e: 'delete', record: HistoryItem): void
 }>()
 
 /**
@@ -108,26 +108,28 @@ const formattedDate = computed(() => {
 <style scoped>
 /* 卡片容器 */
 .gallery-card {
-  background: white;
+  background: rgba(12, 14, 20, 0.4);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   will-change: transform;
   contain: layout style paint;
+  backdrop-filter: blur(5px);
 }
 
 .gallery-card:hover {
-  transform: translateY(-4px) translateZ(0);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-8px) translateZ(0);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(12, 14, 20, 0.6);
+  border-color: rgba(211, 166, 37, 0.3);
 }
 
 /* 封面区域 */
 .card-cover {
   aspect-ratio: 3/4;
-  background: #f7f7f7;
+  background: #000;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -137,13 +139,15 @@ const formattedDate = computed(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
   backface-visibility: hidden;
+  opacity: 0.9;
 }
 
 .gallery-card:hover .card-cover img {
-  transform: scale(1.05) translateZ(0);
+  transform: scale(1.1) translateZ(0);
+  opacity: 1;
 }
 
 /* 封面占位符 */
@@ -153,25 +157,27 @@ const formattedDate = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
-  color: #e0e0e0;
+  font-size: 64px;
+  color: rgba(255, 255, 255, 0.1);
   font-weight: 800;
-  background: #fafafa;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  font-family: var(--font-heading);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 /* 悬浮遮罩层 */
 .card-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(12, 14, 20, 0.7);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   opacity: 0;
-  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(2px);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
   pointer-events: none;
   will-change: opacity;
 }
@@ -183,31 +189,38 @@ const formattedDate = computed(() => {
 
 /* 遮罩层按钮 */
 .overlay-btn {
-  padding: 8px 24px;
+  padding: 10px 28px;
   border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  border: 1px solid rgba(211, 166, 37, 0.4);
+  background: rgba(12, 14, 20, 0.8);
+  color: var(--primary);
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .overlay-btn:hover {
-  background: white;
-  color: var(--text-main, #1a1a1a);
-  transform: translateY(-2px);
+  background: var(--primary);
+  color: #000;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 15px rgba(211, 166, 37, 0.3);
+  border-color: var(--primary);
 }
 
 .overlay-btn.primary {
-  background: var(--primary, #ff2442);
-  border-color: var(--primary, #ff2442);
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
 }
 
 .overlay-btn.primary:hover {
-  background: var(--primary-hover, #e61e3a);
-  color: white;
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
 }
 
 /* 状态标识 */
@@ -215,51 +228,60 @@ const formattedDate = computed(() => {
   position: absolute;
   top: 12px;
   left: 12px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  backdrop-filter: blur(4px);
+  background: rgba(12, 14, 20, 0.85);
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .status-badge.completed {
-  background: rgba(82, 196, 26, 0.9);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.3);
 }
 
 .status-badge.draft {
-  background: rgba(0, 0, 0, 0.5);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 .status-badge.generating {
-  background: rgba(24, 144, 255, 0.9);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 /* 底部区域 */
 .card-footer {
   padding: 16px;
+  background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
 }
 
 .card-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--text-main, #1a1a1a);
+  color: var(--text-main);
+  font-family: var(--font-heading);
+  letter-spacing: 0.3px;
 }
 
 .card-meta {
   display: flex;
   align-items: center;
   font-size: 12px;
-  color: var(--text-sub, #666);
+  color: var(--text-sub);
 }
 
 .dot {
-  margin: 0 6px;
+  margin: 0 8px;
+  color: var(--text-placeholder);
 }
 
 /* 更多操作 */
@@ -270,15 +292,15 @@ const formattedDate = computed(() => {
 .more-btn {
   background: none;
   border: none;
-  color: var(--text-placeholder, #ccc);
+  color: var(--text-placeholder);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
 .more-btn:hover {
-  background: #fee;
-  color: #ff4d4f;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
 }
 </style>

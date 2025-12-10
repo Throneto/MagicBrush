@@ -104,9 +104,11 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
 <style scoped>
 /* 表格容器 */
 .provider-table {
-  border: 1px solid var(--border-color, #eee);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   overflow: hidden;
+  background: rgba(12, 14, 20, 0.4);
+  backdrop-filter: blur(5px);
 }
 
 /* 表头 */
@@ -114,13 +116,15 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
   display: grid;
   grid-template-columns: 80px 1fr 1fr 1.5fr 120px;
   gap: 12px;
-  padding: 12px 16px;
-  background: #f9fafb;
-  border-bottom: 1px solid var(--border-color, #eee);
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-sub, #666);
+  color: var(--text-sub);
   text-transform: uppercase;
+  font-family: var(--font-heading);
+  letter-spacing: 0.5px;
 }
 
 /* 表格行 */
@@ -128,10 +132,10 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
   display: grid;
   grid-template-columns: 80px 1fr 1fr 1.5fr 120px;
   gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-color, #eee);
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   align-items: center;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 .table-row:last-child {
@@ -139,29 +143,31 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
 }
 
 .table-row:hover {
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .table-row.active {
-  background: rgba(255, 36, 66, 0.02);
+  background: rgba(211, 166, 37, 0.05);
+  border-bottom-color: rgba(211, 166, 37, 0.1);
 }
 
 /* 激活按钮 */
 .btn-activate {
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid var(--border-color, #eee);
-  background: white;
-  color: var(--text-sub, #666);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: var(--text-sub);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .btn-activate:hover:not(:disabled) {
-  border-color: var(--primary, #ff2442);
-  color: var(--primary, #ff2442);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(211, 166, 37, 0.1);
 }
 
 .btn-activate.active {
@@ -169,29 +175,33 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
   border-color: #22c55e;
   color: #22c55e;
   cursor: default;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.1);
 }
 
 /* 服务商名称 */
 .provider-name {
   font-weight: 600;
-  color: var(--text-main, #1a1a1a);
+  color: var(--text-main);
+  font-family: var(--font-heading);
+  letter-spacing: 0.5px;
 }
 
 /* 模型名称 */
 .model-name {
   font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 12px;
-  color: var(--text-sub, #666);
-  background: #f5f5f5;
-  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--text-sub);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
   border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* API Key 显示 */
 .apikey-masked {
-  font-size: 12px;
+  font-size: 11px;
   font-family: 'Monaco', 'Menlo', monospace;
-  color: #6b7280;
+  color: var(--text-placeholder);
   word-break: break-all;
 }
 
@@ -210,10 +220,10 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
 .btn-icon {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color, #eee);
-  background: white;
-  color: var(--text-sub, #666);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-sub);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -222,15 +232,16 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
 }
 
 .btn-icon:hover {
-  border-color: var(--primary, #ff2442);
-  color: var(--primary, #ff2442);
-  background: rgba(255, 36, 66, 0.05);
+  border-color: rgba(211, 166, 37, 0.3);
+  color: var(--primary);
+  background: rgba(211, 166, 37, 0.1);
+  transform: translateY(-2px);
 }
 
 .btn-icon.danger:hover {
   border-color: #ef4444;
   color: #ef4444;
-  background: rgba(239, 68, 68, 0.05);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* 响应式 */
@@ -238,10 +249,27 @@ const canDelete = computed(() => Object.keys(props.providers).length > 1)
   .table-header,
   .table-row {
     grid-template-columns: 70px 1fr 100px;
+    gap: 8px;
   }
 
   .col-model,
   .col-apikey {
+    display: none;
+  }
+  
+  .provider-table {
+    border: none;
+    background: transparent;
+  }
+  
+  .table-row {
+    background: rgba(12, 14, 20, 0.4);
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .table-header {
     display: none;
   }
 }

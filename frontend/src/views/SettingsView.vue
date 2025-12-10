@@ -177,29 +177,47 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 16px;
 }
 
 .section-title {
-  font-size: 18px;
+  font-family: var(--font-heading);
+  font-size: 20px;
   font-weight: 600;
-  margin-bottom: 4px;
-  color: #1a1a1a;
+  margin-bottom: 6px;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
 }
 
 .section-desc {
   font-size: 14px;
-  color: #666;
+  color: var(--text-sub);
   margin: 0;
+  font-style: italic;
 }
 
 /* 按钮样式 */
 .btn-small {
-  padding: 6px 12px;
+  padding: 8px 16px;
   font-size: 13px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+  cursor: pointer;
+  font-family: var(--font-heading);
+}
+
+.btn-small:hover {
+  background: rgba(211, 166, 37, 0.1);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 /* 加载状态 */
@@ -208,7 +226,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
-  color: #666;
+  padding: 100px 20px;
+  color: var(--text-sub);
 }
 </style>

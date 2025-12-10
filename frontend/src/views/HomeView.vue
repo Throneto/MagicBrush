@@ -32,7 +32,11 @@
       <div class="footer-copyright">
         © 2025 MagicBrush by Harry
       </div>
-
+      <div class="footer-license">
+        <span style="opacity: 0.8;">基于 <a href="https://github.com/HisMax/RedInk" target="_blank" rel="noopener noreferrer">RedInk</a> 开源项目修改</span>
+        <span style="margin: 0 8px; opacity: 0.3;">|</span>
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">本演示遵循 CC BY-NC-SA 4.0 协议</a>
+      </div>
     </div>
 
     <!-- Error toast with close button -->
@@ -169,14 +173,14 @@ onUnmounted(() => {
   margin-bottom: 40px;
   padding: 56px 64px;
   animation: fadeInUp 0.8s ease-out;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(12, 14, 20, 0.6);
   border-radius: 28px;
   box-shadow: 
-    0 4px 24px rgba(255, 36, 66, 0.04),
-    0 12px 48px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    0 12px 48px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(211, 166, 37, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -188,7 +192,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 36, 66, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(211, 166, 37, 0.5), transparent);
 }
 
 .hero-content {
@@ -197,29 +201,37 @@ onUnmounted(() => {
 
 .brand-pill {
   display: inline-block;
-  padding: 6px 16px;
-  background: rgba(255, 36, 66, 0.08);
+  padding: 8px 20px;
+  background: linear-gradient(90deg, rgba(211, 166, 37, 0.1) 0%, rgba(211, 166, 37, 0.2) 100%);
   color: var(--primary);
+  border: 1px solid rgba(211, 166, 37, 0.3);
   border-radius: 100px;
-  font-size: 13px;
+  font-size: 14px;
+  font-family: var(--font-heading);
   font-weight: 600;
-  margin-bottom: 20px;
-  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+  box-shadow: 0 0 10px rgba(211, 166, 37, 0.1);
+  backdrop-filter: blur(5px);
 }
 
 .platform-slogan {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--text-main);
   margin-bottom: 24px;
   line-height: 1.6;
-  letter-spacing: 0.5px;
+  font-family: var(--font-heading);
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .page-subtitle {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-sub);
   margin-top: 12px;
+  font-style: italic;
+  font-family: var(--font-body);
 }
 
 /* Page Footer */
@@ -230,10 +242,11 @@ onUnmounted(() => {
 }
 
 .footer-copyright {
-  font-size: 15px;
-  color: #333;
+  font-size: 16px;
+  color: var(--text-sub);
   font-weight: 500;
   margin-bottom: 6px;
+  font-family: var(--font-heading);
 }
 
 .footer-copyright a {
@@ -244,15 +257,16 @@ onUnmounted(() => {
 
 .footer-copyright a:hover {
   text-decoration: underline;
+  text-shadow: 0 0 8px var(--primary);
 }
 
 .footer-license {
-  font-size: 13px;
-  color: #999;
+  font-size: 14px;
+  color: var(--text-placeholder);
 }
 
 .footer-license a {
-  color: #666;
+  color: var(--text-secondary);
   text-decoration: none;
 }
 
@@ -266,51 +280,55 @@ onUnmounted(() => {
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #FF4D4F 0%, #FF7875 100%);
-  color: white;
-  padding: 14px 20px;
+  background: rgba(139, 0, 0, 0.9);
+  color: #ffcccc;
+  padding: 14px 24px;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(255, 77, 79, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   z-index: 1000;
   max-width: 90vw;
   overflow: hidden;
+  border: 1px solid rgba(255, 77, 79, 0.3);
+  backdrop-filter: blur(8px);
 }
 
 .error-message {
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.4;
+  font-family: var(--font-body);
 }
 
 .error-close {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: white;
-  transition: background 0.2s;
+  transition: all 0.2s;
   flex-shrink: 0;
 }
 
 .error-close:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.25);
+  transform: rotate(90deg);
 }
 
 .error-progress {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.5);
+  height: 2px;
+  background: rgba(255, 77, 79, 0.8);
   animation: progressShrink 5s linear forwards;
 }
 
@@ -321,17 +339,17 @@ onUnmounted(() => {
 
 /* Toast transition */
 .toast-enter-active {
-  animation: toastIn 0.3s ease-out;
+  animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .toast-leave-active {
-  animation: toastOut 0.25s ease-in forwards;
+  animation: toastOut 0.3s ease-in forwards;
 }
 
 @keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(20px) scale(0.95);
+    transform: translateX(-50%) translateY(20px) scale(0.9);
   }
   to {
     opacity: 1;
@@ -346,7 +364,7 @@ onUnmounted(() => {
   }
   to {
     opacity: 0;
-    transform: translateX(-50%) translateY(10px) scale(0.95);
+    transform: translateX(-50%) translateY(10px) scale(0.9);
   }
 }
 
@@ -359,11 +377,13 @@ onUnmounted(() => {
 @keyframes fadeInUp {
   from { 
     opacity: 0; 
-    transform: translateY(24px);
+    transform: translateY(30px);
+    filter: blur(5px);
   }
   to { 
     opacity: 1; 
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
