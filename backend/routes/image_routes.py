@@ -76,19 +76,44 @@ def create_image_blueprint():
 
             def generate():
                 """SSE 事件生成器"""
-                for event in image_service.generate_images(
-                    pages, task_id, full_outline,
-                    user_images=user_images if user_images else None,
-                    user_topic=user_topic,
-                    step=step,
-                    style=style
-                ):
-                    event_type = event["event"]
-                    event_data = event["data"]
+                try:
+                    for event in image_service.generate_images(
+                        pages, task_id, full_outline,
+                        user_images=user_images if user_images else None,
+                        user_topic=user_topic,
+                        step=step,
+                        style=style
+                    ):
+                        event_type = event["event"]
+                        event_data = event["data"]
 
-                    # 格式化为 SSE 格式
-                    yield f"event: {event_type}\n"
-                    yield f"data: {json.dumps(event_data, ensure_ascii=False)}\n\n"
+                        # 格式化为 SSE 格式
+                        yield f"event: {event_type}\n"
+                        yield f"data: {json.dumps(event_data, ensure_ascii=False)}\n\n"
+                except Exception as e:
+                    # 在 SSE 流中发送错误事件
+                    logger.error(f"SSE 生成过程中发生错误: {e}")
+                    error_event = {
+                        "index": -1,
+                        "status": "error",
+                        "message": str(e),
+                        "retryable": True
+                    }
+                    yield f"event: error\n"
+                    yield f"data: {json.dumps(error_event, ensure_ascii=False)}\n\n"
+                    # 发送完成事件以确保前端能正确关闭
+                    finish_event = {
+                        "success": False,
+                        "task_id": task_id,
+                        "images": [],
+                        "total": len(pages) if pages else 0,
+                        "completed": 0,
+                        "failed": 1,
+                        "failed_indices": [],
+                        "error": str(e)
+                    }
+                    yield f"event: finish\n"
+                    yield f"data: {json.dumps(finish_event, ensure_ascii=False)}\n\n"
 
             return Response(
                 generate(),
@@ -251,12 +276,33 @@ def create_image_blueprint():
 
             def generate():
                 """SSE 事件生成器"""
-                for event in image_service.retry_failed_images(task_id, pages):
-                    event_type = event["event"]
-                    event_data = event["data"]
+                try:
+                    for event in image_service.retry_failed_images(task_id, pages):
+                        event_type = event["event"]
+                        event_data = event["data"]
 
-                    yield f"event: {event_type}\n"
-                    yield f"data: {json.dumps(event_data, ensure_ascii=False)}\n\n"
+                        yield f"event: {event_type}\n"
+                        yield f"data: {json.dumps(event_data, ensure_ascii=False)}\n\n"
+                except Exception as e:
+                    # 在 SSE 流中发送错误事件
+                    logger.error(f"SSE 重试过程中发生错误: {e}")
+                    error_event = {
+                        "index": -1,
+                        "status": "error",
+                        "message": str(e),
+                        "retryable": True
+                    }
+                    yield f"event: error\n"
+                    yield f"data: {json.dumps(error_event, ensure_ascii=False)}\n\n"
+                    # 发送完成事件
+                    finish_event = {
+                        "success": False,
+                        "total": len(pages) if pages else 0,
+                        "completed": 0,
+                        "failed": 1
+                    }
+                    yield f"event: retry_finish\n"
+                    yield f"data: {json.dumps(finish_event, ensure_ascii=False)}\n\n"
 
             return Response(
                 generate(),

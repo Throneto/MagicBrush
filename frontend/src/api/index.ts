@@ -114,7 +114,25 @@ export async function retryFailedImages(
     })
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      // Try to parse error details from response body
+      let errorMessage = `HTTP error! status: ${response.status}`
+      try {
+        const errorData = await response.json()
+        if (errorData.error) {
+          errorMessage = errorData.error
+        }
+      } catch {
+        // If parsing fails, try to get text content
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            errorMessage = `服务器错误 (${response.status}): ${errorText.slice(0, 500)}`
+          }
+        } catch {
+          // Use default message if all parsing fails
+        }
+      }
+      throw new Error(errorMessage)
     }
 
     const reader = response.body?.getReader()
@@ -338,7 +356,25 @@ export async function generateImagesPost(
     })
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      // Try to parse error details from response body
+      let errorMessage = `HTTP error! status: ${response.status}`
+      try {
+        const errorData = await response.json()
+        if (errorData.error) {
+          errorMessage = errorData.error
+        }
+      } catch {
+        // If parsing fails, try to get text content
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            errorMessage = `服务器错误 (${response.status}): ${errorText.slice(0, 500)}`
+          }
+        } catch {
+          // Use default message if all parsing fails
+        }
+      }
+      throw new Error(errorMessage)
     }
 
     const reader = response.body?.getReader()

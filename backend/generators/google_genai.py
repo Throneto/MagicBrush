@@ -1,5 +1,6 @@
 """Google GenAI 图片生成器"""
 import logging
+import os
 import time
 import random
 import base64
