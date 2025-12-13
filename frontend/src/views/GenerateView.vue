@@ -178,7 +178,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneratorStore } from '../stores/generator'
-import { generateImagesPost, regenerateImage as apiRegenerateImage, retryFailedImages as apiRetryFailed, createHistory, updateHistory } from '../api'
+import { generateImagesPost, regenerateImage as apiRegenerateImage, retryFailedImages as apiRetryFailed, updateHistory } from '../api'
 
 const router = useRouter()
 const store = useGeneratorStore()
@@ -568,27 +568,14 @@ function runGeneration(step: 'all' | 'cover' | 'content') {
   })
 }
 
-onMounted(async () => {
+onMounted(() => {
   if (store.outline.pages.length === 0) {
     router.push('/')
     return
   }
 
-  // 创建历史记录（如果还没有）
-  if (!store.recordId) {
-    try {
-      const result = await createHistory(store.topic, {
-        raw: store.outline.raw,
-        pages: store.outline.pages
-      })
-      if (result.success && result.record_id) {
-        store.recordId = result.record_id
-        console.log('创建历史记录:', store.recordId)
-      }
-    } catch (e) {
-      console.error('创建历史记录失败:', e)
-    }
-  }
+  // 历史记录已在 OutlineView.vue 的 startGeneration 中创建
+  // 这里只需要处理生成逻辑
 
   // 如果已经在生成中或有结果，不需要重新开始
   // 但如果 store 中没有 taskId，说明是刚刷新进来，需要重新开始

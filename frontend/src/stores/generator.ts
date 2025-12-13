@@ -210,7 +210,7 @@ export const useGeneratorStore = defineStore('generator', {
     startGeneration() {
       this.stage = 'generating'
       this.taskId = null // 清除旧任务ID
-      this.recordId = null // 清除旧记录ID
+      // 注意: 保留 recordId，以便同一大纲多次生成时复用历史记录
       this.waitingApproval = false // 重置审批状态
       this.isPaused = false // 重置暂停状态
       this.generationStartTime = Date.now() // 记录开始时间

@@ -91,6 +91,7 @@
 import { ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneratorStore } from '../stores/generator'
+import { createHistory } from '../api'
 
 const router = useRouter()
 const store = useGeneratorStore()
@@ -171,7 +172,23 @@ const goBack = () => {
   router.back()
 }
 
-const startGeneration = () => {
+const startGeneration = async () => {
+  // 创建历史记录（如果还没有）
+  if (!store.recordId) {
+    try {
+      const result = await createHistory(store.topic, {
+        raw: store.outline.raw,
+        pages: store.outline.pages
+      })
+      if (result.success && result.record_id) {
+        store.recordId = result.record_id
+        console.log('创建历史记录:', store.recordId)
+      }
+    } catch (e) {
+      console.error('创建历史记录失败:', e)
+    }
+  }
+  
   store.startGeneration()
   router.push('/generate')
 }

@@ -106,6 +106,8 @@
       @regenerate="regenerateHistoryImage"
       @downloadAll="downloadAllImages"
       @download="downloadImage"
+      @edit="editFromGallery"
+      @delete="deleteFromGallery"
     />
 
     <!-- 大纲查看模态框 -->
@@ -354,6 +356,30 @@ function downloadAllImages() {
   const link = document.createElement('a')
   link.href = `/api/history/${viewingRecord.value.id}/download`
   link.click()
+}
+
+/**
+ * 从画廊模态框编辑记录
+ */
+function editFromGallery() {
+  if (!viewingRecord.value) return
+  const recordId = viewingRecord.value.id
+  closeGallery()
+  loadRecord(recordId)
+}
+
+/**
+ * 从画廊模态框删除记录
+ */
+async function deleteFromGallery() {
+  if (!viewingRecord.value) return
+  if (confirm('确定要删除这条记录吗？删除后无法恢复。')) {
+    const recordId = viewingRecord.value.id
+    await deleteHistory(recordId)
+    closeGallery()
+    await loadData()
+    await loadStats()
+  }
 }
 
 /**

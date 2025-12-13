@@ -41,6 +41,13 @@
         </div>
 
         <div class="header-actions">
+          <button class="btn edit-btn" @click="$emit('edit')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            编辑大纲
+          </button>
           <button class="btn download-btn" @click="$emit('downloadAll')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -48,6 +55,13 @@
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
             打包下载
+          </button>
+          <button class="btn delete-btn" @click="$emit('delete')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            删除
           </button>
           <button class="close-icon" @click="$emit('close')">×</button>
         </div>
@@ -144,6 +158,8 @@ defineEmits<{
   (e: 'downloadAll'): void
   (e: 'download', filename: string, index: number): void
   (e: 'regenerate', index: number): void
+  (e: 'edit'): void
+  (e: 'delete'): void
 }>()
 
 // 标题展开状态
@@ -276,12 +292,36 @@ const formattedDate = computed(() => {
   align-items: center;
 }
 
-.download-btn {
+.download-btn,
+.edit-btn,
+.delete-btn {
   padding: 8px 16px;
   font-size: 14px;
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.edit-btn {
+  background: #4a5568;
+  color: white;
+  border-color: #4a5568;
+}
+
+.edit-btn:hover {
+  background: #2d3748;
+  border-color: #2d3748;
+}
+
+.delete-btn {
+  background: transparent;
+  color: #e53e3e;
+  border-color: #e53e3e;
+}
+
+.delete-btn:hover {
+  background: #e53e3e;
+  color: white;
 }
 
 .close-icon {

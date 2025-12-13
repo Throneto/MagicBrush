@@ -401,6 +401,49 @@ def create_history_blueprint():
                 "error": f"下载失败。\n错误详情: {error_msg}"
             }), 500
 
+    @history_bp.route('/task/<task_id>/download', methods=['GET'])
+    def download_task_zip(task_id):
+        """
+        通过任务 ID 下载所有图片为 ZIP 文件
+        
+        路径参数：
+        - task_id: 任务 ID
+        
+        返回：
+        - 成功：ZIP 文件下载
+        - 失败：JSON 错误信息
+        """
+        try:
+            history_service = get_history_service()
+            
+            # 获取任务目录
+            task_dir = os.path.join(history_service.history_dir, task_id)
+            if not os.path.exists(task_dir):
+                return jsonify({
+                    "success": False,
+                    "error": f"任务目录不存在：{task_id}"
+                }), 404
+            
+            # 创建内存中的 ZIP 文件
+            zip_buffer = _create_images_zip(task_dir)
+            
+            # 生成下载文件名
+            filename = f"images_{task_id[:8]}.zip"
+            
+            return send_file(
+                zip_buffer,
+                mimetype='application/zip',
+                as_attachment=True,
+                download_name=filename
+            )
+        
+        except Exception as e:
+            error_msg = str(e)
+            return jsonify({
+                "success": False,
+                "error": f"下载失败。\n错误详情: {error_msg}"
+            }), 500
+
     return history_bp
 
 

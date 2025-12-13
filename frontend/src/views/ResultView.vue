@@ -116,10 +116,17 @@ const downloadOne = (image: any) => {
 
 const downloadAll = () => {
   if (store.recordId) {
+    // 优先使用 recordId 下载（包含完整标题）
     const link = document.createElement('a')
     link.href = `/api/history/${store.recordId}/download`
     link.click()
+  } else if (store.taskId) {
+    // 如果没有 recordId 但有 taskId，使用 taskId 下载
+    const link = document.createElement('a')
+    link.href = `/api/task/${store.taskId}/download`
+    link.click()
   } else {
+    // 都没有，退化为逐张下载
     store.images.forEach((image, index) => {
       if (image.url) {
         setTimeout(() => {
