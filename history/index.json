@@ -1,6 +1,16 @@
 {
   "records": [
     {
+      "id": "59d6705f-ad06-44e9-9f98-a1c1780e7fc9",
+      "title": "杏色系冬季服饰配色最搭大比拼，打造雪季最亮眼的你",
+      "created_at": "2025-12-13T05:52:17.220613",
+      "updated_at": "2025-12-13T05:52:17.220613",
+      "status": "draft",
+      "thumbnail": null,
+      "page_count": 7,
+      "task_id": null
+    },
+    {
       "id": "e9efea92-8174-43c2-9c34-d6f09c998f33",
       "title": "新年最IN最潮服饰配色，超有氛围感",
       "created_at": "2025-12-10T16:50:44.420840",
